@@ -29,7 +29,7 @@
 </head>
 <body>
   <div>
-    <h2>操作选项</h2>
+    <h2>图片操作选项</h2>
     <div class="flex">
       提取色值：
       <input type='radio' value='pickColor' name='action' checked onchange="changeAction(this.value)"  /> 
@@ -43,12 +43,12 @@
       <button id='compareBtn'>请先提取色值，开始对比</button>
     </div>
     <div class="flex">
-      智能吸附：
+      标注框智能吸附：
       <input type='radio' value='adjust' name='action' onchange="changeAction(this.value)" />
     </div>
     <div class="flex">
       更换图片：
-      <input type="file" id="file" />
+      <input type="file" id="upload" accept="image/png,image/jpeg,image/jpg" />
     </div>
 
   </div>
@@ -74,29 +74,42 @@
       // 初始化
       init(){
         const imageUrl = 'https://storage.360buyimg.com/dataset-activity-mini/png-jpg-00002-2.jpg'
-        const lineColor = '#12f430'
+
         this.isDrawing = false
         this.rects = []
+
         this.colorBlock1 = document.getElementById('color-block1')
         this.colorBlock2 = document.getElementById('color-block2')
         this.colorBlock3 = document.getElementById('color-block3')
 
-
         this.compareBtn = document.getElementById('compareBtn')
-
+        this.upload = document.getElementById('upload')
         this.canvas = document.getElementById('canvas')
         this.ctx = canvas.getContext('2d')
-        this.ctx.strokeStyle = lineColor 
-        this.ctx.lineWidth = 2
+        
         this.img = new Image()
         this.img.crossOrigin = 'Anonymous'
         this.img.onload = () => {
-          this.drawImage()
-          this.imageData = this.ctx.getImageData(0,0,this.canvas.width, this.canvas.height)
+          const width = 375
+          const height = width/this.img.width * this.img.height
+          // 计算出画布的宽高
+          this.initCanvas(width,height)
+          this.initEvent()
         }
         this.img.src = imageUrl
 
-        this.initEvent()
+        
+      },
+
+      initCanvas(width,height) {
+        const lineColor = '#12f430'
+        this.canvas.width = width
+        this.canvas.height = height
+        this.ctx.lineWidth = 3
+        this.ctx.strokeStyle = lineColor 
+        this.clear()
+        this.drawImage()
+        this.imageData = this.ctx.getImageData(0,0,this.canvas.width, this.canvas.height)
       },
 
       // 绘制
@@ -107,7 +120,6 @@
         this.rects.forEach(rect => {
           this.drawRect(rect.x, rect.y, rect.width, rect.height)
         })
-        
       },
 
       // 清除画布
@@ -146,6 +158,15 @@
           self.draw()
         }
 
+        this.upload.addEventListener('change',(e)=>{
+          const reader  = new FileReader();
+          reader.addEventListener('load', () => {
+            this.img.src = reader.result;
+            this.rects = []
+          }, false);
+          reader.readAsDataURL(e.target.files[0]);
+        })
+        
         this.compareBtn.addEventListener('click', () => {
           const colorUtils = new ColorUtils({})
           console.log()

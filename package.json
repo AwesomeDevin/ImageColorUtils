@@ -1,11 +1,11 @@
 {
-  "name": "image_adjust",
+  "name": "image-color-utils",
   "version": "1.0.0",
   "description": "",
-  "main": "rollup.config.js",
+  "main": "./src/bundle.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npx tsc"
+    "build": "npx rollup -c"
   },
   "author": "",
   "license": "ISC",
