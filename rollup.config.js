@@ -12,14 +12,14 @@ const plugins = [
     tsconfigOverride: override
   }),
   // commonjs(),
-  polyfill(['./colorUtils.ts']),
+  polyfill(['./imageColorUtils.ts']),
   serve({
     open: true
   })
 ]
 
 export default {
-  input: './src/colorUtils.ts',
+  input: './src/imageColorUtils.ts',
   output: {
     file: './src/bundle.js',
     format: 'es',

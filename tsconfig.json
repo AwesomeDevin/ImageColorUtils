@@ -9,6 +9,6 @@
       "lib": ["ES2017","dom"]
   },
   "files": [
-      "src/colorUtils.ts"
+      "src/imageColorUtils.ts"
   ]
 }

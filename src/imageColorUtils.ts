@@ -16,8 +16,8 @@ type ImageData = {
 // }
 
 interface AdjustConstructor {
-  leftTopPosition: number[]
-  rightBottomPosition: number[]
+  leftTopPosition?: number[]
+  rightBottomPosition?: number[]
   movePxConfig?: number
   boundaryValue?: number
 }
@@ -40,7 +40,7 @@ interface MockMoveParams {
  * 4. 模拟移动矩形的左上/右下坐标(nPX内)
  * 5. 有则对矩形的左上/右下坐标进行调整，来实现矩形四条边的修改
  */
-export class ColorUtils {
+export class ImageColorUtils {
   leftTopPosition: number[]  // 左上角坐标
   rightBottomPosition: number[] // 右下角坐标
   movePxConfig: number  // 移动的像素
@@ -48,7 +48,8 @@ export class ColorUtils {
   lineArray: LineArray
 
   // 获取四条边的数据
-  constructor ({ leftTopPosition = [0,0], rightBottomPosition = [1,1], movePxConfig = 30, boundaryValue = 10}: AdjustConstructor) {
+  constructor (params: AdjustConstructor) {
+    const { leftTopPosition = [0,0], rightBottomPosition = [1,1], movePxConfig = 30, boundaryValue = 10} = params || {}
     this.leftTopPosition = leftTopPosition 
     this.rightBottomPosition = rightBottomPosition
     this.movePxConfig = movePxConfig 
@@ -63,7 +64,7 @@ export class ColorUtils {
   }
 
   public pickColor(imageData: ImageData, x: number, y: number, width: number, type = 'rgb'): number[] {
-    return type === 'rgb' ? ColorUtils.getRGB(imageData.data, x, y, width) : ColorUtils.getHSL(imageData.data, x, y, width)
+    return type === 'rgb' ? ImageColorUtils.getRGB(imageData.data, x, y, width) : ImageColorUtils.getHSL(imageData.data, x, y, width)
   }
 
   // 获取四条边的中位数色值
@@ -80,11 +81,11 @@ export class ColorUtils {
       for (const position of lineArray) {
         const x = position[0]
         const y = position[1]
-        const [r, g, b] = ColorUtils.getRGB(data, x, y, width)
+        const [r, g, b] = ImageColorUtils.getRGB(data, x, y, width)
         rgbArray.push([r, g, b])
       }
-      // media[key] = ColorUtils.getAverage(rgbArray, valueType)
-      media[key] = ColorUtils.getMedian(rgbArray, valueType)
+      // media[key] = ImageColorUtils.getAverage(rgbArray, valueType)
+      media[key] = ImageColorUtils.getMedian(rgbArray, valueType)
     }
     return media
   }
@@ -104,7 +105,7 @@ export class ColorUtils {
 
 
   public compare(oldVal: number[], newVal: number[]): boolean {
-    return ColorUtils.isAdjust(oldVal, newVal, this.boundaryValue)
+    return ImageColorUtils.isAdjust(oldVal, newVal, this.boundaryValue)
   }
 
   // 求平均值
@@ -113,7 +114,7 @@ export class ColorUtils {
     return valueType === 'rgb' ?
       [Math.round(total[0] / data.length), Math.round(total[1] / data.length), Math.round(total[2] / data.length)] // 返回rgb值
       :
-      ColorUtils.RGB2HSL(Math.round(total[0] / data.length), Math.round(total[1] / data.length), Math.round(total[2] / data.length)) // 返回hsl值
+      ImageColorUtils.RGB2HSL(Math.round(total[0] / data.length), Math.round(total[1] / data.length), Math.round(total[2] / data.length)) // 返回hsl值
   }
 
   // 求中位数
@@ -132,7 +133,7 @@ export class ColorUtils {
       return valueType === 'rgb' ?
         [r, g, b] // 返回rgb值
         :
-        ColorUtils.RGB2HSL(r, g, b) // 返回hsl值
+        ImageColorUtils.RGB2HSL(r, g, b) // 返回hsl值
     }
     // 奇数
     const r = total0[(length + 1) / 2]
@@ -141,7 +142,7 @@ export class ColorUtils {
     return valueType === 'rgb' ?
       [r, g, b] // 返回rgb值
       :
-      ColorUtils.RGB2HSL(r, g, b) // 返回hsl值
+      ImageColorUtils.RGB2HSL(r, g, b) // 返回hsl值
   }
 
   // 返回某一点的hsl值
@@ -152,7 +153,7 @@ export class ColorUtils {
       data[index + 1],
       data[index + 2]
     ]
-    return ColorUtils.RGB2HSL(r, g, b)
+    return ImageColorUtils.RGB2HSL(r, g, b)
   }
 
   // 返回某一点的rgb值
@@ -227,9 +228,9 @@ export class ColorUtils {
       const key = 'left'
       const movePx = -count // +movePxConfig/2-1 ~ -movePxConfig/2 内移动
       const mockLeftTopx = leftTopx + movePx
-      const adjust = new ColorUtils({ leftTopPosition: [mockLeftTopx, leftTopy], rightBottomPosition: this.rightBottomPosition, movePxConfig: this.movePxConfig })
+      const adjust = new ImageColorUtils({ leftTopPosition: [mockLeftTopx, leftTopy], rightBottomPosition: this.rightBottomPosition, movePxConfig: this.movePxConfig })
       const mockHslMedia = adjust.pickLineColor(imageData, width, [key])[key]
-      if (ColorUtils.isAdjust(originColorMedia[key], mockHslMedia, this.boundaryValue)) {
+      if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, this.boundaryValue)) {
         leftTopx = mockLeftTopx
         break
       }
@@ -240,10 +241,10 @@ export class ColorUtils {
       const key = 'top'
       const movePx = -count // +movePxConfig/2-1 ~ -movePxConfig/2 内移动
       const mockLeftTopy = leftTopy + movePx
-      const adjust = new ColorUtils({ leftTopPosition: [leftTopx, mockLeftTopy], rightBottomPosition: this.rightBottomPosition, movePxConfig: this.movePxConfig })
+      const adjust = new ImageColorUtils({ leftTopPosition: [leftTopx, mockLeftTopy], rightBottomPosition: this.rightBottomPosition, movePxConfig: this.movePxConfig })
       const mockHslMedia = adjust.pickLineColor(imageData, width, [key])[key]
 
-      if (ColorUtils.isAdjust(originColorMedia[key], mockHslMedia, this.boundaryValue)) {
+      if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, this.boundaryValue)) {
         leftTopy = mockLeftTopy
         break
       }
@@ -262,9 +263,9 @@ export class ColorUtils {
       const key = 'right'
       const movePx = count // +movePxConfig/2-1 ~ -movePxConfig/2 内移动
       const mockRightBotttonx = rightBottomx + movePx
-      const adjust = new ColorUtils({ leftTopPosition: this.leftTopPosition, rightBottomPosition: [mockRightBotttonx, rightBottomy], movePxConfig: this.movePxConfig })
+      const adjust = new ImageColorUtils({ leftTopPosition: this.leftTopPosition, rightBottomPosition: [mockRightBotttonx, rightBottomy], movePxConfig: this.movePxConfig })
       const mockHslMedia = adjust.pickLineColor(imageData, width, [key])[key]
-      if (ColorUtils.isAdjust(originColorMedia[key], mockHslMedia, this.boundaryValue)) {
+      if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, this.boundaryValue)) {
         rightBottomx = mockRightBotttonx
         break
       }
@@ -275,9 +276,9 @@ export class ColorUtils {
       const key = 'bottom'
       const movePx = count // +movePxConfig/2-1 ~ -movePxConfig/2 内移动
       const mockRightBottomy = rightBottomy + movePx
-      const adjust = new ColorUtils({ leftTopPosition: this.leftTopPosition, rightBottomPosition: [rightBottomx, mockRightBottomy], movePxConfig: this.movePxConfig })
+      const adjust = new ImageColorUtils({ leftTopPosition: this.leftTopPosition, rightBottomPosition: [rightBottomx, mockRightBottomy], movePxConfig: this.movePxConfig })
       const mockHslMedia = adjust.pickLineColor(imageData, width, [key])[key]
-      if (ColorUtils.isAdjust(originColorMedia[key], mockHslMedia, this.boundaryValue)) {
+      if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, this.boundaryValue)) {
         rightBottomy = mockRightBottomy
         break
       }
@@ -288,7 +289,7 @@ export class ColorUtils {
 
   // 智能吸附后坐标
   public adjust(imageData: ImageData, width: number ): {x: number, y: number, width: number, height: number} {
-    const adjust = new ColorUtils({ leftTopPosition: this.leftTopPosition, rightBottomPosition: this.rightBottomPosition })
+    const adjust = new ImageColorUtils({ leftTopPosition: this.leftTopPosition, rightBottomPosition: this.rightBottomPosition })
     const originColorMedia = adjust.pickLineColor(imageData, width) // 初始rgb值
     const adjustLeftTopPosition = adjust.leftTopMockMove({ originColorMedia, imageData, width }) // 修正后左上角坐标
     const adjustRightBottomPosition = adjust.rightBottomMockMove({ originColorMedia, imageData, width }) // 修正后右下角坐标

@@ -31,7 +31,7 @@
   <div>
     <h2>图片操作选项</h2>
     <div class="flex">
-      提取色值：
+      提取色值： 
       <input type='radio' value='pickColor' name='action' checked onchange="changeAction(this.value)"  /> 
       <div id="color-block1"></div>
     </div>
@@ -43,7 +43,7 @@
       <button id='compareBtn'>请先提取色值，开始对比</button>
     </div>
     <div class="flex">
-      标注框智能吸附：
+      边界自动吸附：
       <input type='radio' value='adjust' name='action' onchange="changeAction(this.value)" />
     </div>
     <div class="flex">
@@ -67,7 +67,7 @@
     }
   </script>
   <script type="module">
-    import { ColorUtils } from './src/bundle.js'
+    import { ImageColorUtils } from './src/bundle.js'
 
 
     var main = {
@@ -146,7 +146,7 @@
         const self = this
 
         function adjust(leftTopPosition, rightBottomPosition) {
-          const adjust = new ColorUtils({ leftTopPosition, rightBottomPosition })
+          const adjust = new ImageColorUtils({ leftTopPosition, rightBottomPosition })
           return adjust.adjust(self.imageData, Math.floor(self.canvas.width))
         }
 
@@ -168,7 +168,7 @@
         })
         
         this.compareBtn.addEventListener('click', () => {
-          const colorUtils = new ColorUtils({})
+          const colorUtils = new ImageColorUtils()
           console.log()
           const result = colorUtils.compare(blockColor1, blockColor3)
           this.compareBtn.innerHTML = `（结果：${!result ? '相似': '不相似'}）点击继续对比`
@@ -180,9 +180,8 @@
           }
           const x = e.offsetX
           const y = e.offsetY
-          // this.imageData = this.ctx.getImageData(0,0,this.canvas.width, this.canvas.height)
 
-          const pickColor = new ColorUtils({}).pickColor(this.imageData, x, y, this.canvas.width)
+          const pickColor = new ImageColorUtils().pickColor(this.imageData, x, y, this.canvas.width)
           const color = `rgb(${pickColor[0]},${pickColor[1]},${pickColor[2]})`
 
           if(action === 'pickColor'){
