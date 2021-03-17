@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    div{
+      line-height: 25px;
+    }
+    #canvas {
+      margin: 0 auto;
+      display: block;
+      cursor: pointer;
+    }
+    #color-block1,#color-block2,#color-block3{
+      width: 20px;
+      height: 20px;
+      display: inline-block;
+      margin: 0 5px;
+      background: transparent;
+      border: 1px solid #ccc;
+    }
+    .flex{
+      display: flex;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <h2>操作选项</h2>
+    <div class="flex">
+      提取色值：
+      <input type='radio' value='pickColor' name='action' checked onchange="changeAction(this.value)"  /> 
+      <div id="color-block1"></div>
+    </div>
+    <div class="flex">
+      色值对比：
+      <input type='radio' value='compare' name='action'  onchange="changeAction(this.value)"  /> 
+      <div id="color-block2"></div>
+      <div id="color-block3"></div>
+      <button id='compareBtn'>请先提取色值，开始对比</button>
+    </div>
+    <div class="flex">
+      智能吸附：
+      <input type='radio' value='adjust' name='action' onchange="changeAction(this.value)" />
+    </div>
+    <div class="flex">
+      更换图片：
+      <input type="file" id="file" />
+    </div>
+
+  </div>
+  <canvas id='canvas' width="375" height="812"> </canvas>
+  <script type="module" src="./bundle.js">
+  </script>
+  <script>
+    var action = 'pickColor'
+    var blockColor1 = [255,255,255]
+    var blockColor3 = [255,255,255]
+
+
+    function changeAction(value){
+      action = value
+      document.getElementById('canvas').style.cursor = action === 'adjust' ?  'crosshair' : 'pointer'
+    }
+  </script>
+  <script type="module">
+    import { ColorUtils } from './src/bundle.js'
+
+
+    var main = {
+      // 初始化
+      init(){
+        const imageUrl = 'https://storage.360buyimg.com/dataset-activity-mini/png-jpg-00002-2.jpg'
+        const lineColor = '#12f430'
+        this.isDrawing = false
+        this.rects = []
+        this.colorBlock1 = document.getElementById('color-block1')
+        this.colorBlock2 = document.getElementById('color-block2')
+        this.colorBlock3 = document.getElementById('color-block3')
+
+
+        this.compareBtn = document.getElementById('compareBtn')
+
+        this.canvas = document.getElementById('canvas')
+        this.ctx = canvas.getContext('2d')
+        this.ctx.strokeStyle = lineColor 
+        this.ctx.lineWidth = 2
+        this.img = new Image()
+        this.img.crossOrigin = 'Anonymous'
+        this.img.onload = () => {
+          this.drawImage()
+          this.imageData = this.ctx.getImageData(0,0,this.canvas.width, this.canvas.height)
+        }
+        this.img.src = imageUrl
+
+        this.initEvent()
+      },
+
+      // 绘制
+      draw(x, y, width, height) {
+        this.clear()
+        this.drawImage()
+        this.drawRect(x, y, width, height)
+        this.rects.forEach(rect => {
+          this.drawRect(rect.x, rect.y, rect.width, rect.height)
+        })
+        
+      },
+
+      // 清除画布
+      clear() {
+        this.ctx.clearRect(0,0,this.canvas.width, this.canvas.height)
+      },
+
+      // 绘制图片
+      drawImage() {
+        this.ctx.drawImage(this.img,0,0,this.canvas.width, this.canvas.height)
+      },
+
+      // 绘制标注框
+      drawRect(x, y, width, height){
+        this.ctx.strokeRect(x,y,width,height)
+      },
+
+      // 事件监听初始化
+      initEvent(){
+        let startX
+        let startY
+        let endX
+        let endY
+        const self = this
+
+        function adjust(leftTopPosition, rightBottomPosition) {
+          const adjust = new ColorUtils({ leftTopPosition, rightBottomPosition })
+          return adjust.adjust(self.imageData, Math.floor(self.canvas.width))
+        }
+
+        function end() {
+          self.rects.push(adjust([startX, startY], [endX, endY] ))
+          
+          startX = startY = endX = endY = null
+          self.isDrawing = false
+          self.draw()
+        }
+
+        this.compareBtn.addEventListener('click', () => {
+          const colorUtils = new ColorUtils({})
+          console.log()
+          const result = colorUtils.compare(blockColor1, blockColor3)
+          this.compareBtn.innerHTML = `（结果：${!result ? '相似': '不相似'}）点击继续对比`
+        })
+
+        this.canvas.addEventListener('click', (e) => {
+          if(action !== 'pickColor' && action !== 'compare' ){
+            return
+          }
+          const x = e.offsetX
+          const y = e.offsetY
+          // this.imageData = this.ctx.getImageData(0,0,this.canvas.width, this.canvas.height)
+
+          const pickColor = new ColorUtils({}).pickColor(this.imageData, x, y, this.canvas.width)
+          const color = `rgb(${pickColor[0]},${pickColor[1]},${pickColor[2]})`
+
+          if(action === 'pickColor'){
+            this.colorBlock1.style.backgroundColor = color
+            this.colorBlock2.style.backgroundColor = color
+            blockColor1 = pickColor
+          }else if(action === 'compare') {
+            this.colorBlock3.style.backgroundColor = color
+            blockColor3 = pickColor
+          }
+          
+
+        })
+
+        this.canvas.addEventListener('mousedown', (e) => {
+          if(action !== 'adjust'){
+            return
+          }
+          this.isDrawing = true
+          startX = e.offsetX 
+          startY = e.offsetY
+
+          this.canvas.addEventListener('mousemove', (e) => {
+            if(!this.isDrawing){
+              return
+            }
+            endX = e.offsetX 
+            endY= e.offsetY
+            
+            this.draw(startX, startY, endX - startX, endY - startY )
+          })
+
+          this.canvas.addEventListener('mouseup', (e) => {
+            if(!this.isDrawing){
+              return
+            }
+            end()
+          })
+
+          this.canvas.addEventListener('mouseout', () => {
+            if(!this.isDrawing){
+              return
+            }
+            end()
+          })
+
+        })
+        
+      }
+    }
+
+
+    main.init()
+
+    
+  </script>
+</body>
+</html>
