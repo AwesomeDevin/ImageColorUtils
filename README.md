@@ -9,11 +9,11 @@
 ```javascript
 const imageColorUtils = new ImageColorUtils(params)
 ```
-##### arguments
+##### Arguments
 Name | Desc | Type | Default | required
 ---- | ---- | ---- | ----- | ----
-leftTopPosition | 边界区域初始左上角坐标 | number[] | [0,0] | false
-rightBottomPosition | 边界区域初始右下角坐标 | number[] | [1,1] | false
+leftTopPosition | 所选区域初始左上角坐标 | number[] | [0,0] | false
+rightBottomPosition | 所选区域初始右下角坐标 | number[] | [1,1] | false
 mockMovePx |  边界移动距离 | number | 30 | false
 boundaryValue | 色彩边界值（作用于色值相识度对比） | number | 10 | false
 ##### Returns
@@ -30,7 +30,7 @@ const ctx = canvas.getContext('2d')
 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
 const res = imageColorUtils.pickColor(imageData, x, y, canvas.width)
 ```
-##### arguments
+##### Arguments
 Name  | Desc  | Type | Default | required
 -------- | -------- | -------- | -------- | -----
 imageData | canvasImageData | ImageData | - | true
@@ -49,7 +49,7 @@ import { ImageColorUtils } from 'ImageColorUtils'
 const imageColorUtils = new ImageColorUtils()
 const res = imageColorUtils.compare(color1, color2)
 ```
-##### arguments
+##### Arguments
 Name  | Desc  | Type | Default | required
 -------- | -------- | -------- | -------- | -----
 color1 | rgb 色值1 | number[] | - | true
@@ -68,7 +68,7 @@ const ctx = canvas.getContext('2d')
 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
 const res = imageColorUtils.adjust(imageData, canvas.width)
 ```
-##### arguments
+##### Arguments
 Name  | Desc  | Type | Default | required
 -------- | -------- | -------- | -------- | -----
 imageData | canvasImageData | ImageData | - | true
@@ -78,4 +78,37 @@ Desc  | Type
 -------- | -------- 
 边界计算后左上角坐标(x,y)及区域宽高(width,height) | Object:{x: number, y: number, width: number, height: number}
 
+### HEX2RGB - HEX色值转RGB色值
+```javascript
+import { ImageColorUtils } from 'ImageColorUtils'
+
+const imageColorUtils = new ImageColorUtils()
+const rgb = imageColorUtils.HEX2RGB(hex)
+```
+##### Arguments
+Name  | Desc  | Type | Default | required
+-------- | -------- | -------- | -------- | -----
+hex | HEX色值 | String | - | true
+
+##### Returns
+Desc  | Type 
+-------- | -------- 
+RGB色值 | number[]
+
+### RGB2HEX - RGB色值转HEX色值
+```javascript
+import { ImageColorUtils } from 'ImageColorUtils'
+
+const imageColorUtils = new ImageColorUtils()
+const hex = imageColorUtils.RGB2HEX(rgb)
+```
+##### Arguments
+Name  | Desc  | Type | Default | required
+-------- | -------- | -------- | -------- | -----
+rgb | RGB色值 | number[] | - | true
+
+##### Returns
+Desc  | Type 
+-------- | -------- 
+HEX色值 | string
 
