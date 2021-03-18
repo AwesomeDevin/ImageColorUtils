@@ -11,7 +11,7 @@
     #canvas {
       margin: 0 auto;
       display: block;
-      cursor: url('https://img12.360buyimg.com/img/s20x20_jfs/t1/166837/23/14490/690/60534a66E5c520376/8f3ee08937c808f5.png'),auto;
+      cursor: default;
     }
     #color-block1,#color-block2,#color-block3,#color-block4{
       width: 20px;
@@ -105,7 +105,7 @@
 
     function changeAction(value){
       action = value
-      canvasDom.style.cursor = action === 'adjust' ?  'crosshair' : `url('https://img12.360buyimg.com/img/s20x20_jfs/t1/166837/23/14490/690/60534a66E5c520376/8f3ee08937c808f5.png'),auto`
+      canvasDom.style.cursor = action === 'adjust' ?  'crosshair' : `default`
     }
 
   </script>
