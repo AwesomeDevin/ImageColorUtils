@@ -4,6 +4,14 @@
 通过`canvas`操作图片，提供`提取色值`、`色值相识度对比`、`色彩边界值计算`等能力。
 
 ## API
+- [ImageColorUtils](#-imagecolorutils)
+- [pickColor](#-pickcolor)
+- [compare](#-compare)
+- [adjust](#-adjust)
+- [hex2rgb](#-hex2rgb)
+- [rgb2hex](#-rgb2hex)
+
+
 
 ### \# ImageColorUtils
 ```javascript
@@ -78,7 +86,7 @@ Desc  | Type
 -------- | -------- 
 边界计算后左上角坐标(x,y)及区域宽高(width,height) | Object:{x: number, y: number, width: number, height: number}
 
-### \# HEX2RGB - HEX色值转RGB色值
+### \# hex2rgb - HEX色值转RGB色值
 ```javascript
 import { ImageColorUtils } from 'ImageColorUtils'
 
@@ -95,7 +103,7 @@ Desc  | Type
 -------- | -------- 
 RGB色值 | number[]
 
-### \# RGB2HEX - RGB色值转HEX色值
+### \# rgb2hex - RGB色值转HEX色值
 ```javascript
 import { ImageColorUtils } from 'ImageColorUtils'
 
