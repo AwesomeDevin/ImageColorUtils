@@ -1,28 +1,73 @@
 # image-color-utils
 
-### DESC
-通过`canvas`操作图片支持`提取色值`、`色值相识度对比`、`色彩边界值计算`。
+## DESC
+通过`canvas`操作图片，提供`提取色值`、`色值相识度对比`、`色彩边界值计算`等能力。
 
-### API
-##### 提取色值
+## API
+- [ImageColorUtils](#-imagecolorutils)
+- [pickColor](#-pickcolor---提取色值)
+- [compare](#-compare---色值相识度对比)
+- [adjust](#-adjust---色彩边界值计算)
+- [hex2rgb](#-hex2rgb---hex色值转rgb色值)
+- [rgb2hex](#-rgb2hex---rgb色值转hex色值)
+
+
+
+### \# ImageColorUtils
+```javascript
+const imageColorUtils = new ImageColorUtils(params)
+```
+##### Arguments
+Name | Desc | Type | Default | required
+---- | ---- | ---- | ----- | ----
+leftTopPosition | 所选区域初始左上角坐标 | number[] | [0,0] | false
+rightBottomPosition | 所选区域初始右下角坐标 | number[] | [1,1] | false
+mockMovePx |  边界移动距离 | number | 30 | false
+boundaryValue | 色彩边界值（作用于色值相识度对比） | number | 10 | false
+##### Returns
+Desc  | Type 
+-------- | -------- 
+ImageColorUtils实例 | Object
+
+### \# pickColor - 提取色值 
 ```javascript
 import { ImageColorUtils } from 'ImageColorUtils'
 
 const imageColorUtils = new ImageColorUtils()
 const ctx = canvas.getContext('2d')
 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-const res = imageColorUtils.pickColor(imageData, x, y, this.canvas.width)
+const res = imageColorUtils.pickColor(imageData, x, y, canvas.width)
 ```
+##### Arguments
+Name  | Desc  | Type | Default | required
+-------- | -------- | -------- | -------- | -----
+imageData | canvasImageData | ImageData | - | true
+x | 目标点距离画布左上角x坐标 | number | - | true
+y | 目标点距离画布左上角y坐标 | number | - | true
+width | 画布宽度 | number | - | true
+##### Returns
+Desc  | Type 
+-------- | -------- 
+目标点 rgb 色值 | number[] 
 
-##### 色值相识度对比
+### \# compare - 色值相识度对比
 ```javascript
 import { ImageColorUtils } from 'ImageColorUtils'
 
 const imageColorUtils = new ImageColorUtils()
 const res = imageColorUtils.compare(color1, color2)
 ```
+##### Arguments
+Name  | Desc  | Type | Default | required
+-------- | -------- | -------- | -------- | -----
+color1 | rgb 色值1 | number[] | - | true
+color2 | rgb 色值2 | number[] | - | true
+##### Returns
+Desc  | Type 
+-------- | -------- 
+是否相似 | boolean
 
-##### 色彩边界值计算
+### \# adjust - 色彩边界值计算
 ```javascript
 import { ImageColorUtils } from 'ImageColorUtils'
 
@@ -31,3 +76,47 @@ const ctx = canvas.getContext('2d')
 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
 const res = imageColorUtils.adjust(imageData, canvas.width)
 ```
+##### Arguments
+Name  | Desc  | Type | Default | required
+-------- | -------- | -------- | -------- | -----
+imageData | canvasImageData | ImageData | - | true
+width | 画布宽度 | number | - | true
+##### Returns
+Desc  | Type 
+-------- | -------- 
+边界计算后左上角坐标(x,y)及区域宽高(width,height) | Object:{x: number, y: number, width: number, height: number}
+
+### \# hex2rgb - HEX色值转RGB色值
+```javascript
+import { ImageColorUtils } from 'ImageColorUtils'
+
+const imageColorUtils = new ImageColorUtils()
+const rgb = imageColorUtils.HEX2RGB(hex)
+```
+##### Arguments
+Name  | Desc  | Type | Default | required
+-------- | -------- | -------- | -------- | -----
+hex | HEX色值 | String | - | true
+
+##### Returns
+Desc  | Type 
+-------- | -------- 
+RGB色值 | number[]
+
+### \# rgb2hex - RGB色值转HEX色值
+```javascript
+import { ImageColorUtils } from 'ImageColorUtils'
+
+const imageColorUtils = new ImageColorUtils()
+const hex = imageColorUtils.RGB2HEX(rgb)
+```
+##### Arguments
+Name  | Desc  | Type | Default | required
+-------- | -------- | -------- | -------- | -----
+rgb | RGB色值 | number[] | - | true
+
+##### Returns
+Desc  | Type 
+-------- | -------- 
+HEX色值 | string
+
