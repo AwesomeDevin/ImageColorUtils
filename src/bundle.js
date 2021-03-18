@@ -1,9 +1,9 @@
 class ImageColorUtils {
     constructor(params) {
-        const { leftTopPosition = [0, 0], rightBottomPosition = [1, 1], movePxConfig = 30, boundaryValue = 10 } = params || {};
+        const { leftTopPosition = [0, 0], rightBottomPosition = [1, 1], mockMovePx = 30, boundaryValue = 10 } = params || {};
         this.leftTopPosition = leftTopPosition;
         this.rightBottomPosition = rightBottomPosition;
-        this.movePxConfig = movePxConfig;
+        this.mockMovePx = mockMovePx;
         this.boundaryValue = boundaryValue;
         this.lineArray = {
             top: this.getArrayFromTopLine(),
@@ -45,7 +45,7 @@ class ImageColorUtils {
         return false;
     }
     compare(oldVal, newVal) {
-        return ImageColorUtils.isAdjust(oldVal, newVal, this.boundaryValue);
+        return !ImageColorUtils.isAdjust(oldVal, newVal, this.boundaryValue);
     }
     static getAverage(data, valueType) {
         const total = data.reduce((x, y) => [x[0] + y[0], x[1] + y[1], x[2] + y[2]]);
@@ -135,25 +135,25 @@ class ImageColorUtils {
         return result;
     }
     leftTopMockMove({ originColorMedia, imageData, width }) {
-        const movePxConfig = this.movePxConfig;
+        const mockMovePx = this.mockMovePx;
         let leftTopx = this.leftTopPosition[0];
         let leftTopy = this.leftTopPosition[1];
-        for (let count = 1; count <= movePxConfig; count++) {
+        for (let count = 1; count <= mockMovePx; count++) {
             const key = 'left';
             const movePx = -count;
             const mockLeftTopx = leftTopx + movePx;
-            const adjust = new ImageColorUtils({ leftTopPosition: [mockLeftTopx, leftTopy], rightBottomPosition: this.rightBottomPosition, movePxConfig: this.movePxConfig });
+            const adjust = new ImageColorUtils({ leftTopPosition: [mockLeftTopx, leftTopy], rightBottomPosition: this.rightBottomPosition, mockMovePx: this.mockMovePx });
             const mockHslMedia = adjust.pickLineColor(imageData, width, [key])[key];
             if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, this.boundaryValue)) {
                 leftTopx = mockLeftTopx;
                 break;
             }
         }
-        for (let count = 1; count <= movePxConfig; count++) {
+        for (let count = 1; count <= mockMovePx; count++) {
             const key = 'top';
             const movePx = -count;
             const mockLeftTopy = leftTopy + movePx;
-            const adjust = new ImageColorUtils({ leftTopPosition: [leftTopx, mockLeftTopy], rightBottomPosition: this.rightBottomPosition, movePxConfig: this.movePxConfig });
+            const adjust = new ImageColorUtils({ leftTopPosition: [leftTopx, mockLeftTopy], rightBottomPosition: this.rightBottomPosition, mockMovePx: this.mockMovePx });
             const mockHslMedia = adjust.pickLineColor(imageData, width, [key])[key];
             if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, this.boundaryValue)) {
                 leftTopy = mockLeftTopy;
@@ -163,25 +163,25 @@ class ImageColorUtils {
         return [leftTopx, leftTopy];
     }
     rightBottomMockMove({ originColorMedia, imageData, width }) {
-        const movePxConfig = this.movePxConfig;
+        const mockMovePx = this.mockMovePx;
         let rightBottomx = this.rightBottomPosition[0];
         let rightBottomy = this.rightBottomPosition[1];
-        for (let count = 1; count <= movePxConfig; count++) {
+        for (let count = 1; count <= mockMovePx; count++) {
             const key = 'right';
             const movePx = count;
             const mockRightBotttonx = rightBottomx + movePx;
-            const adjust = new ImageColorUtils({ leftTopPosition: this.leftTopPosition, rightBottomPosition: [mockRightBotttonx, rightBottomy], movePxConfig: this.movePxConfig });
+            const adjust = new ImageColorUtils({ leftTopPosition: this.leftTopPosition, rightBottomPosition: [mockRightBotttonx, rightBottomy], mockMovePx: this.mockMovePx });
             const mockHslMedia = adjust.pickLineColor(imageData, width, [key])[key];
             if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, this.boundaryValue)) {
                 rightBottomx = mockRightBotttonx;
                 break;
             }
         }
-        for (let count = 1; count <= movePxConfig; count++) {
+        for (let count = 1; count <= mockMovePx; count++) {
             const key = 'bottom';
             const movePx = count;
             const mockRightBottomy = rightBottomy + movePx;
-            const adjust = new ImageColorUtils({ leftTopPosition: this.leftTopPosition, rightBottomPosition: [rightBottomx, mockRightBottomy], movePxConfig: this.movePxConfig });
+            const adjust = new ImageColorUtils({ leftTopPosition: this.leftTopPosition, rightBottomPosition: [rightBottomx, mockRightBottomy], mockMovePx: this.mockMovePx });
             const mockHslMedia = adjust.pickLineColor(imageData, width, [key])[key];
             if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, this.boundaryValue)) {
                 rightBottomy = mockRightBottomy;
@@ -236,6 +236,12 @@ class ImageColorUtils {
     }
     HEX2RGB(hex) {
         return [parseInt("0x" + hex.slice(1, 3)), parseInt("0x" + hex.slice(3, 5)), parseInt("0x" + hex.slice(5, 7))];
+    }
+    RGB2HEX(rgb) {
+        const r = rgb[0];
+        const g = rgb[1];
+        const b = rgb[2];
+        return ((r << 16) | (g << 8) | b).toString(16);
     }
 }
 

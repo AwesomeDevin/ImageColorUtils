@@ -18,7 +18,7 @@ type ImageData = {
 interface AdjustConstructor {
   leftTopPosition?: number[]
   rightBottomPosition?: number[]
-  movePxConfig?: number
+  mockMovePx?: number
   boundaryValue?: number
 }
 
@@ -43,16 +43,16 @@ interface MockMoveParams {
 export class ImageColorUtils {
   leftTopPosition: number[]  // 左上角坐标
   rightBottomPosition: number[] // 右下角坐标
-  movePxConfig: number  // 移动的像素
+  mockMovePx: number  // 移动的像素
   boundaryValue: number  // 边界值
   lineArray: LineArray
 
   // 获取四条边的数据
   constructor (params: AdjustConstructor) {
-    const { leftTopPosition = [0,0], rightBottomPosition = [1,1], movePxConfig = 30, boundaryValue = 10} = params || {}
+    const { leftTopPosition = [0,0], rightBottomPosition = [1,1], mockMovePx = 30, boundaryValue = 10} = params || {}
     this.leftTopPosition = leftTopPosition 
     this.rightBottomPosition = rightBottomPosition
-    this.movePxConfig = movePxConfig 
+    this.mockMovePx = mockMovePx 
 
     this.boundaryValue = boundaryValue 
     this.lineArray = {
@@ -105,7 +105,7 @@ export class ImageColorUtils {
 
 
   public compare(oldVal: number[], newVal: number[]): boolean {
-    return ImageColorUtils.isAdjust(oldVal, newVal, this.boundaryValue)
+    return !ImageColorUtils.isAdjust(oldVal, newVal, this.boundaryValue)
   }
 
   // 求平均值
@@ -219,16 +219,16 @@ export class ImageColorUtils {
 
   // 假设左上角移动
   public leftTopMockMove ({ originColorMedia, imageData, width }: MockMoveParams): number[] {
-    const movePxConfig = this.movePxConfig
+    const mockMovePx = this.mockMovePx
     let leftTopx = this.leftTopPosition[0]
     let leftTopy = this.leftTopPosition[1]
 
-    // 假设左上角x轴向 +movePxConfig/2 ~ -movePxConfig/2 内移动
-    for (let count = 1; count <= movePxConfig; count++) {
+    // 假设左上角x轴向 +mockMovePx/2 ~ -mockMovePx/2 内移动
+    for (let count = 1; count <= mockMovePx; count++) {
       const key = 'left'
-      const movePx = -count // +movePxConfig/2-1 ~ -movePxConfig/2 内移动
+      const movePx = -count // +mockMovePx/2-1 ~ -mockMovePx/2 内移动
       const mockLeftTopx = leftTopx + movePx
-      const adjust = new ImageColorUtils({ leftTopPosition: [mockLeftTopx, leftTopy], rightBottomPosition: this.rightBottomPosition, movePxConfig: this.movePxConfig })
+      const adjust = new ImageColorUtils({ leftTopPosition: [mockLeftTopx, leftTopy], rightBottomPosition: this.rightBottomPosition, mockMovePx: this.mockMovePx })
       const mockHslMedia = adjust.pickLineColor(imageData, width, [key])[key]
       if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, this.boundaryValue)) {
         leftTopx = mockLeftTopx
@@ -236,12 +236,12 @@ export class ImageColorUtils {
       }
     }
 
-    // 假设左上角y轴向 +movePxConfig/2 ~ -movePxConfig/2 内移动
-    for (let count = 1; count <= movePxConfig; count++) {
+    // 假设左上角y轴向 +mockMovePx/2 ~ -mockMovePx/2 内移动
+    for (let count = 1; count <= mockMovePx; count++) {
       const key = 'top'
-      const movePx = -count // +movePxConfig/2-1 ~ -movePxConfig/2 内移动
+      const movePx = -count // +mockMovePx/2-1 ~ -mockMovePx/2 内移动
       const mockLeftTopy = leftTopy + movePx
-      const adjust = new ImageColorUtils({ leftTopPosition: [leftTopx, mockLeftTopy], rightBottomPosition: this.rightBottomPosition, movePxConfig: this.movePxConfig })
+      const adjust = new ImageColorUtils({ leftTopPosition: [leftTopx, mockLeftTopy], rightBottomPosition: this.rightBottomPosition, mockMovePx: this.mockMovePx })
       const mockHslMedia = adjust.pickLineColor(imageData, width, [key])[key]
 
       if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, this.boundaryValue)) {
@@ -254,16 +254,16 @@ export class ImageColorUtils {
 
   // 假设右下角移动
   public rightBottomMockMove ({ originColorMedia, imageData, width }: MockMoveParams): number[] {
-    const movePxConfig = this.movePxConfig
+    const mockMovePx = this.mockMovePx
     let rightBottomx = this.rightBottomPosition[0]
     let rightBottomy = this.rightBottomPosition[1]
 
-    // 假设右下角x轴向 +movePxConfig/2 ~ -movePxConfig/2 内移动
-    for (let count = 1; count <= movePxConfig; count++) {
+    // 假设右下角x轴向 +mockMovePx/2 ~ -mockMovePx/2 内移动
+    for (let count = 1; count <= mockMovePx; count++) {
       const key = 'right'
-      const movePx = count // +movePxConfig/2-1 ~ -movePxConfig/2 内移动
+      const movePx = count // +mockMovePx/2-1 ~ -mockMovePx/2 内移动
       const mockRightBotttonx = rightBottomx + movePx
-      const adjust = new ImageColorUtils({ leftTopPosition: this.leftTopPosition, rightBottomPosition: [mockRightBotttonx, rightBottomy], movePxConfig: this.movePxConfig })
+      const adjust = new ImageColorUtils({ leftTopPosition: this.leftTopPosition, rightBottomPosition: [mockRightBotttonx, rightBottomy], mockMovePx: this.mockMovePx })
       const mockHslMedia = adjust.pickLineColor(imageData, width, [key])[key]
       if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, this.boundaryValue)) {
         rightBottomx = mockRightBotttonx
@@ -271,12 +271,12 @@ export class ImageColorUtils {
       }
     }
 
-    // 假设右下角y轴向 +movePxConfig/2 ~ -movePxConfig/2 内移动
-    for (let count = 1; count <= movePxConfig; count++) {
+    // 假设右下角y轴向 +mockMovePx/2 ~ -mockMovePx/2 内移动
+    for (let count = 1; count <= mockMovePx; count++) {
       const key = 'bottom'
-      const movePx = count // +movePxConfig/2-1 ~ -movePxConfig/2 内移动
+      const movePx = count // +mockMovePx/2-1 ~ -mockMovePx/2 内移动
       const mockRightBottomy = rightBottomy + movePx
-      const adjust = new ImageColorUtils({ leftTopPosition: this.leftTopPosition, rightBottomPosition: [rightBottomx, mockRightBottomy], movePxConfig: this.movePxConfig })
+      const adjust = new ImageColorUtils({ leftTopPosition: this.leftTopPosition, rightBottomPosition: [rightBottomx, mockRightBottomy], mockMovePx: this.mockMovePx })
       const mockHslMedia = adjust.pickLineColor(imageData, width, [key])[key]
       if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, this.boundaryValue)) {
         rightBottomy = mockRightBottomy
@@ -329,7 +329,16 @@ export class ImageColorUtils {
   }
 
   // hex转rgb
-  public HEX2RGB(hex: string): number[] {
+  public hex2rgb(hex: string): number[] {
     return [parseInt("0x" +hex.slice(1, 3)),parseInt("0x" + hex.slice(3, 5)),parseInt("0x" + hex.slice(5, 7))]
   }
+
+  // RGB2HEX
+  public rgb2hex(rgb: number[]): string {
+    const r = rgb[0]
+    const g = rgb[1]
+    const b = rgb[2]
+    return ((r << 16) | (g << 8) | b).toString(16);
+  }
+
 }

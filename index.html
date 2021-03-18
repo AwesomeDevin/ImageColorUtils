@@ -169,9 +169,8 @@
         
         this.compareBtn.addEventListener('click', () => {
           const colorUtils = new ImageColorUtils()
-          console.log()
           const result = colorUtils.compare(blockColor1, blockColor3)
-          this.compareBtn.innerHTML = `（结果：${!result ? '相似': '不相似'}）点击继续对比`
+          this.compareBtn.innerHTML = `（结果：${result ? '相似': '不相似'}）点击继续对比`
         })
 
         this.canvas.addEventListener('click', (e) => {
@@ -235,6 +234,7 @@
 
 
     main.init()
+
 
     
   </script>
