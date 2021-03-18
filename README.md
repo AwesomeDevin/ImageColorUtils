@@ -27,7 +27,7 @@ Name | Desc | Type | Default | required
 ---- | ---- | ---- | ----- | ----
 leftTopPosition | 所选区域初始左上角坐标 | number[] | [0,0] | false
 rightBottomPosition | 所选区域初始右下角坐标 | number[] | [1,1] | false
-mockMovePx |  边界扫描距离（最大移动距离, 扫描方向由内外） | number | 30 | false
+mockMovePx |  边界扫描距离（最大移动距离, 扫描方向由内向外） | number | 30 | false
 boundaryValue | 色彩边界阈值（作用于色值相似度对比, 阈值越高，相似条件越高） | number | 10 | false
 ##### Returns
 Desc  | Type 
