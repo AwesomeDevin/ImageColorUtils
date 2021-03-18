@@ -13,7 +13,7 @@
       display: block;
       cursor: pointer;
     }
-    #color-block1,#color-block2,#color-block3{
+    #color-block1,#color-block2,#color-block3,#color-block4{
       width: 20px;
       height: 20px;
       display: inline-block;
@@ -24,47 +24,80 @@
     .flex{
       display: flex;
       align-items: center;
+      text-align: center;
+      line-height: 30px;
+      cursor: pointer;
+      color: #888;
+      transition: color 0.3s;
+    }
+    .flex:hover{
+      color: #000;
+    }
+    .root{
+      position: absolute;
     }
   </style>
 </head>
 <body>
-  <div>
-    <h2>图片操作选项</h2>
-    <div class="flex">
-      提取色值： 
-      <input type='radio' value='pickColor' name='action' checked onchange="changeAction(this.value)"  /> 
+  <div class="root">
+    <h3>图片操作选项</h3>
+    <label class="flex">
+      提取色值1： 
+      <input type='radio' value='pickColor1' name='action' checked onchange="changeAction(this.value)"  /> 
       <div id="color-block1"></div>
-    </div>
-    <div class="flex">
-      色值对比：
-      <input type='radio' value='compare' name='action'  onchange="changeAction(this.value)"  /> 
+    </label>
+    <label class="flex">
+      提取色值2： 
+      <input type='radio' value='pickColor2' name='action' onchange="changeAction(this.value)"  /> 
       <div id="color-block2"></div>
-      <div id="color-block3"></div>
-      <button id='compareBtn'>请先提取色值，开始对比</button>
-    </div>
-    <div class="flex">
-      边界自动吸附：
+    </label>
+    <label class="flex">
+      边界自动吸附（找不到临界点则不移动）：
       <input type='radio' value='adjust' name='action' onchange="changeAction(this.value)" />
+    </label>
+
+    <div class="flex">
+      色值1/色值2 相识度对比：
+      <div id="color-block3"></div>
+      <div id="color-block4"></div>
+      <button id='compareBtn'>开始对比</button>
     </div>
+    
     <div class="flex">
       更换图片：
       <input type="file" id="upload" accept="image/png,image/jpeg,image/jpg" />
     </div>
 
+    <h3>参数配置</h3>
+    <div class="flex">
+      色彩边界阈值（阈值越高，相似条件越高）：
+      <input type='range' id='boundary' name='boundaryValue' value="10"  min="5" max="100" step="5"/>
+      <span id="boundaryText">10</span>
+    </div>
+    <div class="flex">
+      边界扫描距离（由内向外）：
+      <input type='range' id='mockMove' name='mockMovePx' value="30"  min="10" max="200" step="10"/>
+      <span id="mockMoveText">30</span>
+    </div>
+    
   </div>
   <canvas id='canvas' width="375" height="812"> </canvas>
   <script type="module" src="./bundle.js">
   </script>
   <script>
-    var action = 'pickColor'
+    var action = 'pickColor1'
     var blockColor1 = [255,255,255]
-    var blockColor3 = [255,255,255]
+    var blockColor2 = [255,255,255]
+
+
+    const canvasDom = document.getElementById('canvas')
 
 
     function changeAction(value){
       action = value
-      document.getElementById('canvas').style.cursor = action === 'adjust' ?  'crosshair' : 'pointer'
+      canvasDom.style.cursor = action === 'adjust' ?  'crosshair' : 'pointer'
     }
+
   </script>
   <script type="module">
     import { ImageColorUtils } from './src/bundle.js'
@@ -74,13 +107,23 @@
       // 初始化
       init(){
         const imageUrl = 'https://storage.360buyimg.com/dataset-activity-mini/png-jpg-00002-2.jpg'
-
+        const width = 500
         this.isDrawing = false
         this.rects = []
+        this.boundaryValue = 10
+        this.mockMovePx = 30
 
         this.colorBlock1 = document.getElementById('color-block1')
         this.colorBlock2 = document.getElementById('color-block2')
         this.colorBlock3 = document.getElementById('color-block3')
+        this.colorBlock4 = document.getElementById('color-block4')
+
+        this.boundary = document.getElementById('boundary')
+        this.boundaryText = document.getElementById('boundaryText')
+
+        this.mockMove = document.getElementById('mockMove')
+        this.mockMoveText = document.getElementById('mockMoveText')
+
 
         this.compareBtn = document.getElementById('compareBtn')
         this.upload = document.getElementById('upload')
@@ -90,10 +133,10 @@
         this.img = new Image()
         this.img.crossOrigin = 'Anonymous'
         this.img.onload = () => {
-          const width = 375
+          
           const height = width/this.img.width * this.img.height
           // 计算出画布的宽高
-          this.initCanvas(width,height)
+          this.initCanvas(width, height)
           this.initEvent()
         }
         this.img.src = imageUrl
@@ -146,7 +189,7 @@
         const self = this
 
         function adjust(leftTopPosition, rightBottomPosition) {
-          const adjust = new ImageColorUtils({ leftTopPosition, rightBottomPosition })
+          const adjust = new ImageColorUtils({ leftTopPosition, rightBottomPosition, boundaryValue: self.boundaryValue, mockMovePx: self.mockMovePx })
           return adjust.adjust(self.imageData, Math.floor(self.canvas.width))
         }
 
@@ -158,6 +201,18 @@
           self.draw()
         }
 
+        this.boundary.addEventListener('change',(e)=>{
+          const value = parseInt(e.target.value)
+          this.boundaryValue = value
+          this.boundaryText.innerHTML = value
+        })
+
+        this.mockMove.addEventListener('change',(e)=>{
+          const value = parseInt(e.target.value)
+          this.mockMovePx = value
+          this.mockMoveText.innerHTML = value
+        })
+
         this.upload.addEventListener('change',(e)=>{
           const reader  = new FileReader();
           reader.addEventListener('load', () => {
@@ -168,13 +223,13 @@
         })
         
         this.compareBtn.addEventListener('click', () => {
-          const colorUtils = new ImageColorUtils()
-          const result = colorUtils.compare(blockColor1, blockColor3)
+          const colorUtils = new ImageColorUtils({boundaryValue: this.boundaryValue, mockMovePx: this.mockMovePx})
+          const result = colorUtils.compare(blockColor1, blockColor2)
           this.compareBtn.innerHTML = `（结果：${result ? '相似': '不相似'}）点击继续对比`
         })
 
         this.canvas.addEventListener('click', (e) => {
-          if(action !== 'pickColor' && action !== 'compare' ){
+          if(!action.match('pickColor') && action !== 'compare' ){
             return
           }
           const x = e.offsetX
@@ -183,13 +238,16 @@
           const pickColor = new ImageColorUtils().pickColor(this.imageData, x, y, this.canvas.width)
           const color = `rgb(${pickColor[0]},${pickColor[1]},${pickColor[2]})`
 
-          if(action === 'pickColor'){
+          if(action === 'pickColor1'){
             this.colorBlock1.style.backgroundColor = color
-            this.colorBlock2.style.backgroundColor = color
-            blockColor1 = pickColor
-          }else if(action === 'compare') {
             this.colorBlock3.style.backgroundColor = color
-            blockColor3 = pickColor
+
+            blockColor1 = pickColor
+          } else if(action === 'pickColor2'){
+            this.colorBlock2.style.backgroundColor = color
+            this.colorBlock4.style.backgroundColor = color
+
+            blockColor2 = pickColor
           }
           
 

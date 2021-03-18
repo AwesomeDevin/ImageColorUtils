@@ -289,7 +289,8 @@ export class ImageColorUtils {
 
   // 智能吸附后坐标
   public adjust(imageData: ImageData, width: number ): {x: number, y: number, width: number, height: number} {
-    const adjust = new ImageColorUtils({ leftTopPosition: this.leftTopPosition, rightBottomPosition: this.rightBottomPosition })
+    const params = Object.assign({ leftTopPosition: this.leftTopPosition, rightBottomPosition: this.rightBottomPosition}, this.mockMovePx && {mockMovePx: this.mockMovePx}, this.boundaryValue && {boundaryValue: this.boundaryValue} )
+    const adjust = new ImageColorUtils(params)
     const originColorMedia = adjust.pickLineColor(imageData, width) // 初始rgb值
     const adjustLeftTopPosition = adjust.leftTopMockMove({ originColorMedia, imageData, width }) // 修正后左上角坐标
     const adjustRightBottomPosition = adjust.rightBottomMockMove({ originColorMedia, imageData, width }) // 修正后右下角坐标

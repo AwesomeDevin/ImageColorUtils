@@ -191,7 +191,8 @@ class ImageColorUtils {
         return [rightBottomx, rightBottomy];
     }
     adjust(imageData, width) {
-        const adjust = new ImageColorUtils({ leftTopPosition: this.leftTopPosition, rightBottomPosition: this.rightBottomPosition });
+        const params = Object.assign({ leftTopPosition: this.leftTopPosition, rightBottomPosition: this.rightBottomPosition }, this.mockMovePx && { mockMovePx: this.mockMovePx }, this.boundaryValue && { boundaryValue: this.boundaryValue });
+        const adjust = new ImageColorUtils(params);
         const originColorMedia = adjust.pickLineColor(imageData, width);
         const adjustLeftTopPosition = adjust.leftTopMockMove({ originColorMedia, imageData, width });
         const adjustRightBottomPosition = adjust.rightBottomMockMove({ originColorMedia, imageData, width });
@@ -234,10 +235,10 @@ class ImageColorUtils {
         }
         return [Math.floor(h * 100), Math.round(s * 100), Math.round(l * 100)];
     }
-    HEX2RGB(hex) {
+    hex2rgb(hex) {
         return [parseInt("0x" + hex.slice(1, 3)), parseInt("0x" + hex.slice(3, 5)), parseInt("0x" + hex.slice(5, 7))];
     }
-    RGB2HEX(rgb) {
+    rgb2hex(rgb) {
         const r = rgb[0];
         const g = rgb[1];
         const b = rgb[2];
