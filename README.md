@@ -76,6 +76,6 @@ width | 画布宽度 | number | - | true
 ##### Returns
 Desc  | Type 
 -------- | -------- 
-边界计算后坐标 | Object:{x: number, y: number, width: number, height: number}
+边界计算后左上角坐标(x,y)及区域宽高(width,height) | Object:{x: number, y: number, width: number, height: number}
 
 
