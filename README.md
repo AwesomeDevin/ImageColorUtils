@@ -5,11 +5,11 @@
 
 ## API
 - [ImageColorUtils](#-imagecolorutils)
-- [pickColor](#-pickcolor)
-- [compare](#-compare)
-- [adjust](#-adjust)
-- [hex2rgb](#-hex2rgb)
-- [rgb2hex](#-rgb2hex)
+- [pickColor](#-pickcolor---提取色值)
+- [compare](#-compare---色值相识度对比)
+- [adjust](#-adjust---色彩边界值计算)
+- [hex2rgb](#-hex2rgb---hex色值转rgb色值)
+- [rgb2hex](#-rgb2hex---rgb色值转hex色值)
 
 
 
