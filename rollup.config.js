@@ -1,6 +1,7 @@
 import polyfill from 'rollup-plugin-polyfill'
 import typescript from 'rollup-plugin-typescript2';
 import serve from 'rollup-plugin-serve'
+import commonjs from 'rollup-plugin-commonjs'
 
 let defaults = { compilerOptions: { declaration: true } };
  let override = { compilerOptions: { declaration: false } };
@@ -11,7 +12,7 @@ const plugins = [
     tsconfig: "tsconfig.json",
     tsconfigOverride: override
   }),
-  // commonjs(),
+  commonjs(),
   polyfill(['./imageColorUtils.ts']),
   serve({
     open: true
@@ -20,10 +21,13 @@ const plugins = [
 
 export default {
   input: './src/imageColorUtils.ts',
-  output: {
-    file: './src/bundle.js',
+  output: [{
+    file: './build/index.es.js',
     format: 'es',
+  },{
+    file: './build/index.js',
+    format: 'cjs',
     name: 'example'
-  },
+  }],
   plugins
 }

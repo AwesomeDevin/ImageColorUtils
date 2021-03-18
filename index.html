@@ -82,8 +82,8 @@
     
   </div>
   <canvas id='canvas' width="375" height="812"> </canvas>
-  <script type="module" src="./bundle.js">
-  </script>
+  <!-- <script type="module" src="./build/bundle.js">
+  </script> -->
   <script>
     var action = 'pickColor1'
     var blockColor1 = [255,255,255]
@@ -100,7 +100,7 @@
 
   </script>
   <script type="module">
-    import { ImageColorUtils } from './src/bundle.js'
+    import { ImageColorUtils } from './build/index.es.js'
 
 
     var main = {
