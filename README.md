@@ -5,7 +5,7 @@
 
 ## API
 
-### ImageColorUtils
+### \# ImageColorUtils
 ```javascript
 const imageColorUtils = new ImageColorUtils(params)
 ```
@@ -21,7 +21,7 @@ Desc  | Type
 -------- | -------- 
 ImageColorUtils实例 | Object
 
-### pickColor - 提取色值 
+### \# pickColor - 提取色值 
 ```javascript
 import { ImageColorUtils } from 'ImageColorUtils'
 
@@ -42,7 +42,7 @@ Desc  | Type
 -------- | -------- 
 目标点 rgb 色值 | number[] 
 
-### compare - 色值相识度对比
+### \# compare - 色值相识度对比
 ```javascript
 import { ImageColorUtils } from 'ImageColorUtils'
 
@@ -59,7 +59,7 @@ Desc  | Type
 -------- | -------- 
 是否相似 | boolean
 
-### adjust - 色彩边界值计算
+### \# adjust - 色彩边界值计算
 ```javascript
 import { ImageColorUtils } from 'ImageColorUtils'
 
@@ -78,7 +78,7 @@ Desc  | Type
 -------- | -------- 
 边界计算后左上角坐标(x,y)及区域宽高(width,height) | Object:{x: number, y: number, width: number, height: number}
 
-### HEX2RGB - HEX色值转RGB色值
+### \# HEX2RGB - HEX色值转RGB色值
 ```javascript
 import { ImageColorUtils } from 'ImageColorUtils'
 
@@ -95,7 +95,7 @@ Desc  | Type
 -------- | -------- 
 RGB色值 | number[]
 
-### RGB2HEX - RGB色值转HEX色值
+### \# RGB2HEX - RGB色值转HEX色值
 ```javascript
 import { ImageColorUtils } from 'ImageColorUtils'
 
