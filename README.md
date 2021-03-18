@@ -11,7 +11,10 @@
 - [hex2rgb](#-hex2rgb---hex色值转rgb色值)
 - [rgb2hex](#-rgb2hex---rgb色值转hex色值)
 
-
+## Install
+```
+npm install image-color-utils --save
+```
 
 ### \# ImageColorUtils
 ```javascript
@@ -22,7 +25,7 @@ Name | Desc | Type | Default | required
 ---- | ---- | ---- | ----- | ----
 leftTopPosition | 所选区域初始左上角坐标 | number[] | [0,0] | false
 rightBottomPosition | 所选区域初始右下角坐标 | number[] | [1,1] | false
-mockMovePx |  边界扫描距离（最大移动距离, 扫描方向由内向外） | number | 30 | false
+mockMovePx |  边界扫描距离（最大移动距离, 扫描方向由内外） | number | 30 | false
 boundaryValue | 色彩边界阈值（作用于色值相似度对比, 阈值越高，相似条件越高） | number | 10 | false
 ##### Returns
 Desc  | Type 
@@ -31,7 +34,7 @@ ImageColorUtils实例 | Object
 
 ### \# pickColor - 提取色值 
 ```javascript
-import { ImageColorUtils } from 'ImageColorUtils'
+import { ImageColorUtils } from 'image-color-utils'
 
 const imageColorUtils = new ImageColorUtils()
 const ctx = canvas.getContext('2d')
@@ -52,7 +55,7 @@ Desc  | Type
 
 ### \# compare - 色值相识度对比
 ```javascript
-import { ImageColorUtils } from 'ImageColorUtils'
+import { ImageColorUtils } from 'image-color-utils'
 
 const imageColorUtils = new ImageColorUtils()
 const res = imageColorUtils.compare(color1, color2)
@@ -69,7 +72,7 @@ Desc  | Type
 
 ### \# adjust - 色彩边界值计算
 ```javascript
-import { ImageColorUtils } from 'ImageColorUtils'
+import { ImageColorUtils } from 'image-color-utils'
 
 const imageColorUtils = new ImageColorUtils({ leftTopPosition, rightBottomPosition })
 const ctx = canvas.getContext('2d')
@@ -88,7 +91,7 @@ Desc  | Type
 
 ### \# hex2rgb - HEX色值转RGB色值
 ```javascript
-import { ImageColorUtils } from 'ImageColorUtils'
+import { ImageColorUtils } from 'image-color-utils'
 
 const imageColorUtils = new ImageColorUtils()
 const rgb = imageColorUtils.HEX2RGB(hex)
@@ -105,7 +108,7 @@ RGB色值 | number[]
 
 ### \# rgb2hex - RGB色值转HEX色值
 ```javascript
-import { ImageColorUtils } from 'ImageColorUtils'
+import { ImageColorUtils } from 'image-color-utils'
 
 const imageColorUtils = new ImageColorUtils()
 const hex = imageColorUtils.RGB2HEX(rgb)
