@@ -1,6 +1,6 @@
 {
   "name": "image-color-utils",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "通过`canvas`操作图片，提供`提取色值`、`色值相识度对比`、`色彩边界值计算`等能力",
   "main": "./build/index.js",
   "module": "./build/index.es.js",
@@ -15,7 +15,6 @@
   ],
   "keywords":["pick","color","compare","pick color","Color similarity"],
   "dependencies": {
-    "image-color-utils": "^1.0.1"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.17.0",
