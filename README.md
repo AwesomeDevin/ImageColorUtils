@@ -3,7 +3,7 @@
 ## DESC
 通过`canvas`操作图片，提供`提取色值`、`色值相识度对比`、`色彩边界值计算`等能力。  
 ### [demo](http://47.105.188.15:3002/)
-![](https://storage.360buyimg.com/sharesns/demo.gif)
+![](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/6078c562973f4cf8a9fb861917562b27~tplv-k3u1fbpfcp-zoom-1.image)
 ## API
 - [ImageColorUtils](#-imagecolorutils)
 - [pickColor](#-pickcolor---提取色值)
