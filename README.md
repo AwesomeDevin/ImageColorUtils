@@ -3,6 +3,7 @@
 ## DESC
 通过`canvas`操作图片，提供`提取色值`、`色值相识度对比`、`色彩边界值计算`等能力。  
 ### [demo](http://47.105.188.15:3002/)
+### [codesandbox](https://codesandbox.io/s/image-color-utils-ghrvb)
 ![](https://raw.githubusercontent.com/AwesomeDevin/ImageColorUtils/master/static/demo4.gif)
 ## API
 - [ImageColorUtils](#-imagecolorutils)
