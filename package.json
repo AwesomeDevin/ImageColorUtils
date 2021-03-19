@@ -9,7 +9,7 @@
     "build": "npx rollup -c"
   },
   "author": "AwesomeDevin <awesomedevin.deng@gmail.com>",
-  "license": "ISC",
+  "license": "MIT",
   "files": [
     "build/"
   ],
