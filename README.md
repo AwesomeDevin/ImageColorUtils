@@ -12,6 +12,7 @@
 - [adjust](#-adjust---色彩边界值计算)
 - [hex2rgb](#-hex2rgb---hex色值转rgb色值)
 - [rgb2hex](#-rgb2hex---rgb色值转hex色值)
+- 待开发(图片自动抓取、截图)
 
 ## Install
 ```
