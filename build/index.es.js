@@ -1,10 +1,79 @@
+/*! *****************************************************************************
+Copyright (c) Microsoft Corporation.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+***************************************************************************** */
+
+function __awaiter(thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+}
+
+class ImageColorCanvas {
+    constructor(params) {
+        const { src, width } = params;
+        ImageColorCanvas.src = src;
+        ImageColorCanvas.width = width;
+    }
+    init() {
+        return ImageColorCanvas.initImage();
+    }
+    static initImage() {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.crossOrigin = 'Anonymous';
+            img.onload = () => {
+                const width = ImageColorCanvas.width || img.width;
+                const height = ImageColorCanvas.width ? (ImageColorCanvas.width / img.width) * img.height : img.height;
+                ImageColorCanvas.initCanvas(img, width, height).then(res => {
+                    resolve(res);
+                }).catch(err => {
+                    reject(err);
+                });
+            };
+            img.src = this.src;
+        });
+    }
+    static initCanvas(img, width, height) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const offscreen = new OffscreenCanvas(width, height);
+            const ctx = offscreen.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            const imageData = ctx.getImageData(0, 0, width, height);
+            const imageBitMap = yield createImageBitmap(offscreen, 0, 0, width, height);
+            return {
+                ctx,
+                imageData,
+                imageBitMap
+            };
+        });
+    }
+}
+
 class ImageColorUtils {
     constructor(params) {
-        const { leftTopPosition = [0, 0], rightBottomPosition = [1, 1], mockMovePx = 30, boundaryValue = 10 } = params || {};
+        const { leftTopPosition = [], rightBottomPosition = [], mockMovePx = 30, boundaryValue = 10 } = params || {};
         this.leftTopPosition = leftTopPosition;
         this.rightBottomPosition = rightBottomPosition;
         this.mockMovePx = mockMovePx;
         this.boundaryValue = boundaryValue;
+        if (!leftTopPosition.length || !rightBottomPosition.length) {
+            return;
+        }
         this.lineArray = {
             top: this.getArrayFromTopLine(),
             left: this.getArrayFromLeftLine(),
@@ -246,4 +315,4 @@ class ImageColorUtils {
     }
 }
 
-export { ImageColorUtils };
+export { ImageColorCanvas, ImageColorUtils };

@@ -9,6 +9,9 @@
       "lib": ["ES2017","dom"]
   },
   "files": [
-      "src/imageColorUtils.ts"
+      "src/ImageColorUtils.ts",
+      "src/ImageColorCanvas.ts",
+      "src/index.ts"
+
   ]
 }
