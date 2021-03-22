@@ -194,7 +194,11 @@ class ImageColorUtils {
         }
         return [rightBottomx, rightBottomy];
     }
-    adjust(imageData, width) {
+    adjust(img, width, height) {
+        const offscreen = new OffscreenCanvas(width, height);
+        const ctx = offscreen.getContext('2d');
+        ctx && ctx.drawImage(img, 0, 0, width, height);
+        const imageData = ctx && ctx.getImageData(0, 0, width, height);
         const params = Object.assign({ leftTopPosition: this.leftTopPosition, rightBottomPosition: this.rightBottomPosition }, this.mockMovePx && { mockMovePx: this.mockMovePx }, this.boundaryValue && { boundaryValue: this.boundaryValue });
         const adjust = new ImageColorUtils(params);
         const originColorMedia = adjust.pickLineColor(imageData, width);

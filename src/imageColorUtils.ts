@@ -288,7 +288,11 @@ export class ImageColorUtils {
 
 
   // 智能吸附后坐标
-  public adjust(imageData: ImageData, width: number ): {x: number, y: number, width: number, height: number} {
+  public adjust(img: HTMLImageElement | ImageBitmap, width: number, height: number ): {x: number, y: number, width: number, height: number} {
+    const offscreen = new OffscreenCanvas(width, height)
+    const ctx = offscreen.getContext('2d')
+    ctx && ctx.drawImage(img, 0, 0, width, height)
+    const imageData = ctx && ctx.getImageData(0, 0, width, height)
     const params = Object.assign({ leftTopPosition: this.leftTopPosition, rightBottomPosition: this.rightBottomPosition}, this.mockMovePx && {mockMovePx: this.mockMovePx}, this.boundaryValue && {boundaryValue: this.boundaryValue} )
     const adjust = new ImageColorUtils(params)
     const originColorMedia = adjust.pickLineColor(imageData, width) // 初始rgb值

@@ -114,7 +114,6 @@
   <script type="module">
     import { ImageColorUtils } from './build/index.es.js'
 
-
     var main = {
       // 初始化
       init(){
@@ -202,7 +201,7 @@
 
         function adjust(leftTopPosition, rightBottomPosition) {
           const adjust = new ImageColorUtils({ leftTopPosition, rightBottomPosition, boundaryValue: self.boundaryValue, mockMovePx: self.mockMovePx })
-          return adjust.adjust(self.imageData, Math.floor(self.canvas.width))
+          return adjust.adjust(self.img, Math.floor(self.canvas.width),Math.floor(self.canvas.height))
         }
 
         function end() {

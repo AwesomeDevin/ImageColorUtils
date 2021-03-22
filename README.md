@@ -78,14 +78,15 @@ Desc  | Type
 import { ImageColorUtils } from 'image-color-utils'
 
 const imageColorUtils = new ImageColorUtils({ leftTopPosition, rightBottomPosition })
-const ctx = canvas.getContext('2d')
-const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-const res = imageColorUtils.adjust(imageData, canvas.width)
+const img = new Image()
+img.onload = () => {
+  const res = imageColorUtils.adjust(img, canvas.width, canvas.height)
+}
 ```
 ##### Arguments
 Name  | Desc  | Type | Default | required
 -------- | -------- | -------- | -------- | -----
-imageData | canvasImageData | ImageData | - | true
+img | img or imagebitmap | HTMLImageElement | ImageBitmap | - | true
 width | 画布宽度 | number | - | true
 ##### Returns
 Desc  | Type 

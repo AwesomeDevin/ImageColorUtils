@@ -1,6 +1,6 @@
 {
   "name": "image-color-utils",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Operate image pixels, such as pickup color, color contrast, etc",
   "main": "./build/index.js",
   "module": "./build/index.es.js",
