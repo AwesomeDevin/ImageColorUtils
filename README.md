@@ -86,7 +86,7 @@ img.onload = () => {
 ##### Arguments
 Name  | Desc  | Type | Default | required
 -------- | -------- | -------- | -------- | -----
-img | img or imagebitmap | HTMLImageElement | ImageBitmap | - | true
+img | img / imagebitmap | HTMLImageElement / ImageBitmap | - | true
 width | 画布宽度 | number | - | true
 ##### Returns
 Desc  | Type 
