@@ -12,6 +12,16 @@
 npm install image-color-utils --save
 ```
 
+## Usage
+##### es
+```javascript
+import { ImageColorUtils } from 'image-color-utils'
+```
+##### commonjs
+```javascript
+const { ImageColorUtils } = require('image-color-utils')
+```
+
 ## API
 - [ImageColorUtils](#-imagecolorutils)
 - [pickColor](#-pickcolor---提取色值)

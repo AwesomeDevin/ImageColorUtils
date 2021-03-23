@@ -36,7 +36,7 @@ export interface MockMoveParams {
 export interface PickLineColorParams{
   leftTopPosition: number[]
   rightBottomPosition: number[]
-  type?: string[]
+  scopes?: string[]
   valueType?: string
 }
 
@@ -47,7 +47,7 @@ export declare class ImageColorUtils{
   public ctx: OffscreenCanvasRenderingContext2D
   public imageData: ImageData
   
-  public pickLineColor ({leftTopPosition,rightBottomPosition, type, valueType} : PickLineColorParams): MediaValue
+  public pickLineColor ({leftTopPosition,rightBottomPosition, scopes, valueType} : PickLineColorParams): MediaValue
   public leftTopMockMove ({ originColorMedia, leftTopPosition, rightBottomPosition }: MockMoveParams): number[] 
   public rightBottomMockMove ({ originColorMedia, leftTopPosition, rightBottomPosition }: MockMoveParams): number[] 
 

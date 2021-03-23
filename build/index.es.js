@@ -56,7 +56,7 @@ class ImageColorUtils {
     pickColor(x, y, type = 'rgb') {
         return type === 'rgb' ? ImageColorUtils.getRGB(this.imageData.data, x, y, this.canvas.width) : ImageColorUtils.getHSL(this.imageData.data, x, y, this.canvas.width);
     }
-    pickLineColor({ leftTopPosition, rightBottomPosition, type, valueType = 'rgb' }) {
+    pickLineColor({ leftTopPosition, rightBottomPosition, scopes, valueType = 'rgb' }) {
         const data = this.imageData.data;
         const media = {};
         const lineArrayCollection = {
@@ -66,7 +66,7 @@ class ImageColorUtils {
             bottom: this.getArrayFromBottomLine(leftTopPosition, rightBottomPosition),
         };
         for (const key in lineArrayCollection) {
-            if (type && !type.filter(item => item === key).length) {
+            if (scopes && !scopes.filter(item => item === key).length) {
                 continue;
             }
             const lineArray = lineArrayCollection[key];
@@ -189,7 +189,7 @@ class ImageColorUtils {
             const key = 'left';
             const movePx = -count;
             const mockLeftTopx = leftTopx + movePx;
-            const mockHslMedia = this.pickLineColor({ leftTopPosition: [mockLeftTopx, leftTopy], rightBottomPosition, type: [key] })[key];
+            const mockHslMedia = this.pickLineColor({ leftTopPosition: [mockLeftTopx, leftTopy], rightBottomPosition, scopes: [key] })[key];
             if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, ImageColorUtils.boundaryValue)) {
                 leftTopx = mockLeftTopx;
                 break;
@@ -199,7 +199,7 @@ class ImageColorUtils {
             const key = 'top';
             const movePx = -count;
             const mockLeftTopy = leftTopy + movePx;
-            const mockHslMedia = this.pickLineColor({ leftTopPosition: [leftTopx, mockLeftTopy], rightBottomPosition, type: [key] })[key];
+            const mockHslMedia = this.pickLineColor({ leftTopPosition: [leftTopx, mockLeftTopy], rightBottomPosition, scopes: [key] })[key];
             if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, ImageColorUtils.boundaryValue)) {
                 leftTopy = mockLeftTopy;
                 break;
@@ -215,7 +215,7 @@ class ImageColorUtils {
             const key = 'right';
             const movePx = count;
             const mockRightBotttonx = rightBottomx + movePx;
-            const mockHslMedia = this.pickLineColor({ leftTopPosition, rightBottomPosition: [mockRightBotttonx, rightBottomy], type: [key] })[key];
+            const mockHslMedia = this.pickLineColor({ leftTopPosition, rightBottomPosition: [mockRightBotttonx, rightBottomy], scopes: [key] })[key];
             if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, ImageColorUtils.boundaryValue)) {
                 rightBottomx = mockRightBotttonx;
                 break;
@@ -225,7 +225,7 @@ class ImageColorUtils {
             const key = 'bottom';
             const movePx = count;
             const mockRightBottomy = rightBottomy + movePx;
-            const mockHslMedia = this.pickLineColor({ leftTopPosition, rightBottomPosition: [rightBottomx, mockRightBottomy], type: [key] })[key];
+            const mockHslMedia = this.pickLineColor({ leftTopPosition, rightBottomPosition: [rightBottomx, mockRightBottomy], scopes: [key] })[key];
             if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, ImageColorUtils.boundaryValue)) {
                 rightBottomy = mockRightBottomy;
                 break;

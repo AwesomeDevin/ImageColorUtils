@@ -49,7 +49,7 @@ interface MockMoveParams {
 interface PickLineColorParams{
   leftTopPosition: number[]
   rightBottomPosition: number[]
-  type?: string[]
+  scopes?: string[]
   valueType?: string
 }
 
@@ -127,7 +127,7 @@ export class ImageColorUtils {
   }
 
   // 获取四条边的中位数色值
-  public pickLineColor ({leftTopPosition,rightBottomPosition, type, valueType = 'rgb'} : PickLineColorParams): MediaValue {
+  public pickLineColor ({leftTopPosition,rightBottomPosition, scopes, valueType = 'rgb'} : PickLineColorParams): MediaValue {
     const data = this.imageData.data
     const media: MediaValue = {}
     const lineArrayCollection: LineArray = {
@@ -137,7 +137,7 @@ export class ImageColorUtils {
       bottom: this.getArrayFromBottomLine(leftTopPosition, rightBottomPosition),
     }
     for (const key in lineArrayCollection) {
-      if (type && !type.filter(item=>item===key).length) {
+      if (scopes && !scopes.filter(item=>item===key).length) {
         continue
       }
       const lineArray: Array<number[]> = lineArrayCollection[key]
@@ -294,7 +294,7 @@ export class ImageColorUtils {
       const movePx = -count // +mockMovePx/2-1 ~ -mockMovePx/2 内移动
       const mockLeftTopx = leftTopx + movePx
       // const adjust = new ImageColorUtils({origin: this.origin , mockMovePx ,boundaryValue, width: ImageColorUtils.width, height: ImageColorUtils.height})
-      const mockHslMedia = this.pickLineColor({leftTopPosition: [mockLeftTopx, leftTopy], rightBottomPosition, type:[key]})[key]
+      const mockHslMedia = this.pickLineColor({leftTopPosition: [mockLeftTopx, leftTopy], rightBottomPosition, scopes:[key]})[key]
       if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, ImageColorUtils.boundaryValue)) {
         leftTopx = mockLeftTopx
         break
@@ -307,7 +307,7 @@ export class ImageColorUtils {
       const movePx = -count // +mockMovePx/2-1 ~ -mockMovePx/2 内移动
       const mockLeftTopy = leftTopy + movePx
       // const adjust = new ImageColorUtils({origin: this.origin, mockMovePx, boundaryValue,  width: ImageColorUtils.width, height: ImageColorUtils.height })
-      const mockHslMedia = this.pickLineColor({leftTopPosition: [leftTopx, mockLeftTopy], rightBottomPosition, type: [key]})[key]
+      const mockHslMedia = this.pickLineColor({leftTopPosition: [leftTopx, mockLeftTopy], rightBottomPosition, scopes: [key]})[key]
       if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, ImageColorUtils.boundaryValue)) {
         leftTopy = mockLeftTopy
         break
@@ -328,7 +328,7 @@ export class ImageColorUtils {
       const movePx = count // +mockMovePx/2-1 ~ -mockMovePx/2 内移动
       const mockRightBotttonx = rightBottomx + movePx
       // const adjust = new ImageColorUtils({origin: this.origin,  mockMovePx ,boundaryValue,width: ImageColorUtils.width, height: ImageColorUtils.height })
-      const mockHslMedia = this.pickLineColor({leftTopPosition, rightBottomPosition: [mockRightBotttonx, rightBottomy],type: [key]})[key]
+      const mockHslMedia = this.pickLineColor({leftTopPosition, rightBottomPosition: [mockRightBotttonx, rightBottomy],scopes: [key]})[key]
       if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, ImageColorUtils.boundaryValue)) {
         rightBottomx = mockRightBotttonx
         break
@@ -341,7 +341,7 @@ export class ImageColorUtils {
       const movePx = count // +mockMovePx/2-1 ~ -mockMovePx/2 内移动
       const mockRightBottomy = rightBottomy + movePx
       // const adjust = new ImageColorUtils({origin: this.origin, mockMovePx,boundaryValue, width: ImageColorUtils.width, height: ImageColorUtils.height })
-      const mockHslMedia = this.pickLineColor({leftTopPosition, rightBottomPosition: [rightBottomx, mockRightBottomy], type: [key]})[key]
+      const mockHslMedia = this.pickLineColor({leftTopPosition, rightBottomPosition: [rightBottomx, mockRightBottomy], scopes: [key]})[key]
       if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, ImageColorUtils.boundaryValue)) {
         rightBottomy = mockRightBottomy
         break
