@@ -16,7 +16,7 @@ npm install image-color-utils --save
 - [ImageColorUtils](#-imagecolorutils)
 - [pickColor](#-pickcolor---提取色值)
 - [adjust](#-adjust---色彩边界值计算)
-- [compare](#-compare---色值相识度对比)
+- [compare](#-compare---色值相似度对比)
 - [hex2rgb](#-hex2rgb---hex色值转rgb色值)
 - [rgb2hex](#-rgb2hex---rgb色值转hex色值)
 
@@ -95,7 +95,7 @@ Desc  | Type
 -------- | -------- 
 边界计算后左上角坐标(x,y)及区域宽高(width,height) | Object:{x: number, y: number, width: number, height: number}
 
-### \# compare - 色值相识度对比
+### \# compare - 色值相似度对比
 ```javascript
 import { ImageColorUtils } from 'image-color-utils'
 
