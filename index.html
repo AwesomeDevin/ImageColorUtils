@@ -200,8 +200,9 @@
         const self = this
 
         function adjust(leftTopPosition, rightBottomPosition) {
-          const adjust = new ImageColorUtils({ leftTopPosition, rightBottomPosition, boundaryValue: self.boundaryValue, mockMovePx: self.mockMovePx })
-          return adjust.adjust(self.img, Math.floor(self.canvas.width),Math.floor(self.canvas.height))
+          const imageColorUtils = new ImageColorUtils({ origin: self.img,width: Math.floor(self.canvas.width), height: Math.floor(self.canvas.height),  boundaryValue: self.boundaryValue, mockMovePx: self.mockMovePx })
+          console.log(imageColorUtils)
+          return imageColorUtils.adjust(leftTopPosition, rightBottomPosition)
         }
 
         function end() {
@@ -234,8 +235,7 @@
         })
         
         this.compareBtn.addEventListener('click', () => {
-          const colorUtils = new ImageColorUtils({boundaryValue: this.boundaryValue, mockMovePx: this.mockMovePx})
-          const result = colorUtils.compare(blockColor1, blockColor2)
+          const result = ImageColorUtils.compare(blockColor1, blockColor2, this.boundaryValue)
           this.compareBtn.innerHTML = `（结果：${result ? '相似': '不相似'}）点击继续对比`
         })
 
@@ -246,7 +246,13 @@
           const x = e.offsetX
           const y = e.offsetY
 
-          const pickColor = new ImageColorUtils().pickColor(this.imageData, x, y, this.canvas.width)
+          const pickColor = new ImageColorUtils({
+            origin: this.img,
+            width:this.canvas.width,
+            height: this.canvas.height
+          }).pickColor(x, y)
+
+          console.log('pickColor',pickColor)
           const color = `rgb(${pickColor[0]},${pickColor[1]},${pickColor[2]})`
 
           if(action === 'pickColor1'){

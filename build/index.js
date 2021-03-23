@@ -4,34 +4,79 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 class ImageColorUtils {
     constructor(params) {
-        const { leftTopPosition = [0, 0], rightBottomPosition = [1, 1], mockMovePx = 30, boundaryValue = 10 } = params || {};
-        this.leftTopPosition = leftTopPosition;
-        this.rightBottomPosition = rightBottomPosition;
-        this.mockMovePx = mockMovePx;
-        this.boundaryValue = boundaryValue;
-        this.lineArray = {
-            top: this.getArrayFromTopLine(),
-            left: this.getArrayFromLeftLine(),
-            right: this.getArrayFromRightLine(),
-            bottom: this.getArrayFromBottomLine(),
-        };
+        const { origin, mockMovePx = 30, boundaryValue = 10, width, height } = params || {};
+        if (!origin) {
+            throw new Error('Origin not found');
+        }
+        else if (!width) {
+            throw new Error('Width not found');
+        }
+        else if (!height) {
+            throw new Error('Height not found');
+        }
+        ImageColorUtils.mockMovePx = mockMovePx;
+        ImageColorUtils.boundaryValue = boundaryValue;
+        ImageColorUtils.width = width;
+        ImageColorUtils.height = height;
+        this.init(origin, width, height);
     }
-    pickColor(imageData, x, y, width, type = 'rgb') {
-        return type === 'rgb' ? ImageColorUtils.getRGB(imageData.data, x, y, width) : ImageColorUtils.getHSL(imageData.data, x, y, width);
+    init(origin, width, height) {
+        try {
+            if (typeof origin === 'string') {
+                const img = new Image();
+                img.src = origin;
+                img.crossOrigin = "Anonymous";
+                img.onload = () => {
+                    this.initCanvas(img, width, height);
+                };
+            }
+            else if (origin instanceof ImageBitmap) {
+                this.initCanvas(origin, width, height);
+            }
+            else if (origin instanceof HTMLImageElement) {
+                this.initCanvas(origin, width, height);
+            }
+            else {
+                throw new Error('The origin format is not supported');
+            }
+        }
+        catch (e) {
+            throw new Error(e);
+        }
     }
-    pickLineColor(imageData, width, type, valueType = 'rgb') {
-        const data = imageData.data;
+    initCanvas(img, width, height) {
+        try {
+            this.canvas = new OffscreenCanvas(width, height);
+            this.ctx = this.canvas.getContext('2d');
+            this.ctx && this.ctx.drawImage(img, 0, 0, width, height);
+            this.imageData = this.ctx && this.ctx.getImageData(0, 0, width, height);
+        }
+        catch (e) {
+            throw new Error(e);
+        }
+    }
+    pickColor(x, y, type = 'rgb') {
+        return type === 'rgb' ? ImageColorUtils.getRGB(this.imageData.data, x, y, ImageColorUtils.width) : ImageColorUtils.getHSL(this.imageData.data, x, y, ImageColorUtils.width);
+    }
+    pickLineColor({ leftTopPosition, rightBottomPosition, type, valueType = 'rgb' }) {
+        const data = this.imageData.data;
         const media = {};
-        for (const key in this.lineArray) {
+        const lineArrayCollection = {
+            top: this.getArrayFromTopLine(leftTopPosition, rightBottomPosition),
+            left: this.getArrayFromLeftLine(leftTopPosition, rightBottomPosition),
+            right: this.getArrayFromRightLine(leftTopPosition, rightBottomPosition),
+            bottom: this.getArrayFromBottomLine(leftTopPosition, rightBottomPosition),
+        };
+        for (const key in lineArrayCollection) {
             if (type && !type.filter(item => item === key).length) {
                 continue;
             }
-            const lineArray = this.lineArray[key];
+            const lineArray = lineArrayCollection[key];
             const rgbArray = [];
             for (const position of lineArray) {
                 const x = position[0];
                 const y = position[1];
-                const [r, g, b] = ImageColorUtils.getRGB(data, x, y, width);
+                const [r, g, b] = ImageColorUtils.getRGB(data, x, y, ImageColorUtils.width);
                 rgbArray.push([r, g, b]);
             }
             media[key] = ImageColorUtils.getMedian(rgbArray, valueType);
@@ -48,8 +93,8 @@ class ImageColorUtils {
         }
         return false;
     }
-    compare(oldVal, newVal) {
-        return !ImageColorUtils.isAdjust(oldVal, newVal, this.boundaryValue);
+    static compare(oldVal, newVal, boundaryValue) {
+        return !ImageColorUtils.isAdjust(oldVal, newVal, boundaryValue);
     }
     static getAverage(data, valueType) {
         const total = data.reduce((x, y) => [x[0] + y[0], x[1] + y[1], x[2] + y[2]]);
@@ -98,57 +143,56 @@ class ImageColorUtils {
         ];
         return [r, g, b];
     }
-    getArrayFromTopLine() {
+    getArrayFromTopLine(leftTopPosition, rightBottomPosition) {
         const result = [];
-        const leftTopX = this.leftTopPosition[0];
-        const leftTopY = this.leftTopPosition[1];
-        const rightBottomX = this.rightBottomPosition[0];
+        const leftTopX = leftTopPosition[0];
+        const leftTopY = leftTopPosition[1];
+        const rightBottomX = rightBottomPosition[0];
         for (let x = leftTopX; x <= rightBottomX; x++) {
             result.push([x, leftTopY]);
         }
         return result;
     }
-    getArrayFromRightLine() {
+    getArrayFromRightLine(leftTopPosition, rightBottomPosition) {
         const result = [];
-        const leftTopY = this.leftTopPosition[1];
-        const rightBottomX = this.rightBottomPosition[0];
-        const rightBottomY = this.rightBottomPosition[1];
+        const leftTopY = leftTopPosition[1];
+        const rightBottomX = rightBottomPosition[0];
+        const rightBottomY = rightBottomPosition[1];
         for (let y = leftTopY; y <= rightBottomY; y++) {
             result.push([rightBottomX, y]);
         }
         return result;
     }
-    getArrayFromBottomLine() {
+    getArrayFromBottomLine(leftTopPosition, rightBottomPosition) {
         const result = [];
-        const leftTopX = this.leftTopPosition[0];
-        const rightBottomX = this.rightBottomPosition[0];
-        const rightBottomY = this.rightBottomPosition[1];
+        const leftTopX = leftTopPosition[0];
+        const rightBottomX = rightBottomPosition[0];
+        const rightBottomY = rightBottomPosition[1];
         for (let x = leftTopX; x <= rightBottomX; x++) {
             result.push([x, rightBottomY]);
         }
         return result;
     }
-    getArrayFromLeftLine() {
+    getArrayFromLeftLine(leftTopPosition, rightBottomPosition) {
         const result = [];
-        const leftTopX = this.leftTopPosition[0];
-        const leftTopY = this.leftTopPosition[1];
-        const rightBottomY = this.rightBottomPosition[1];
+        const leftTopX = leftTopPosition[0];
+        const leftTopY = leftTopPosition[1];
+        const rightBottomY = rightBottomPosition[1];
         for (let y = leftTopY; y <= rightBottomY; y++) {
             result.push([leftTopX, y]);
         }
         return result;
     }
-    leftTopMockMove({ originColorMedia, imageData, width }) {
-        const mockMovePx = this.mockMovePx;
-        let leftTopx = this.leftTopPosition[0];
-        let leftTopy = this.leftTopPosition[1];
+    leftTopMockMove({ originColorMedia, leftTopPosition, rightBottomPosition }) {
+        const mockMovePx = ImageColorUtils.mockMovePx;
+        let leftTopx = leftTopPosition[0];
+        let leftTopy = leftTopPosition[1];
         for (let count = 1; count <= mockMovePx; count++) {
             const key = 'left';
             const movePx = -count;
             const mockLeftTopx = leftTopx + movePx;
-            const adjust = new ImageColorUtils({ leftTopPosition: [mockLeftTopx, leftTopy], rightBottomPosition: this.rightBottomPosition, mockMovePx: this.mockMovePx });
-            const mockHslMedia = adjust.pickLineColor(imageData, width, [key])[key];
-            if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, this.boundaryValue)) {
+            const mockHslMedia = this.pickLineColor({ leftTopPosition: [mockLeftTopx, leftTopy], rightBottomPosition, type: [key] })[key];
+            if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, ImageColorUtils.boundaryValue)) {
                 leftTopx = mockLeftTopx;
                 break;
             }
@@ -157,26 +201,24 @@ class ImageColorUtils {
             const key = 'top';
             const movePx = -count;
             const mockLeftTopy = leftTopy + movePx;
-            const adjust = new ImageColorUtils({ leftTopPosition: [leftTopx, mockLeftTopy], rightBottomPosition: this.rightBottomPosition, mockMovePx: this.mockMovePx });
-            const mockHslMedia = adjust.pickLineColor(imageData, width, [key])[key];
-            if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, this.boundaryValue)) {
+            const mockHslMedia = this.pickLineColor({ leftTopPosition: [leftTopx, mockLeftTopy], rightBottomPosition, type: [key] })[key];
+            if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, ImageColorUtils.boundaryValue)) {
                 leftTopy = mockLeftTopy;
                 break;
             }
         }
         return [leftTopx, leftTopy];
     }
-    rightBottomMockMove({ originColorMedia, imageData, width }) {
-        const mockMovePx = this.mockMovePx;
-        let rightBottomx = this.rightBottomPosition[0];
-        let rightBottomy = this.rightBottomPosition[1];
+    rightBottomMockMove({ originColorMedia, leftTopPosition, rightBottomPosition }) {
+        const mockMovePx = ImageColorUtils.mockMovePx;
+        let rightBottomx = rightBottomPosition[0];
+        let rightBottomy = rightBottomPosition[1];
         for (let count = 1; count <= mockMovePx; count++) {
             const key = 'right';
             const movePx = count;
             const mockRightBotttonx = rightBottomx + movePx;
-            const adjust = new ImageColorUtils({ leftTopPosition: this.leftTopPosition, rightBottomPosition: [mockRightBotttonx, rightBottomy], mockMovePx: this.mockMovePx });
-            const mockHslMedia = adjust.pickLineColor(imageData, width, [key])[key];
-            if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, this.boundaryValue)) {
+            const mockHslMedia = this.pickLineColor({ leftTopPosition, rightBottomPosition: [mockRightBotttonx, rightBottomy], type: [key] })[key];
+            if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, ImageColorUtils.boundaryValue)) {
                 rightBottomx = mockRightBotttonx;
                 break;
             }
@@ -185,25 +227,21 @@ class ImageColorUtils {
             const key = 'bottom';
             const movePx = count;
             const mockRightBottomy = rightBottomy + movePx;
-            const adjust = new ImageColorUtils({ leftTopPosition: this.leftTopPosition, rightBottomPosition: [rightBottomx, mockRightBottomy], mockMovePx: this.mockMovePx });
-            const mockHslMedia = adjust.pickLineColor(imageData, width, [key])[key];
-            if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, this.boundaryValue)) {
+            const mockHslMedia = this.pickLineColor({ leftTopPosition, rightBottomPosition: [rightBottomx, mockRightBottomy], type: [key] })[key];
+            if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, ImageColorUtils.boundaryValue)) {
                 rightBottomy = mockRightBottomy;
                 break;
             }
         }
         return [rightBottomx, rightBottomy];
     }
-    adjust(img, width, height) {
-        const offscreen = new OffscreenCanvas(width, height);
-        const ctx = offscreen.getContext('2d');
-        ctx && ctx.drawImage(img, 0, 0, width, height);
-        const imageData = ctx && ctx.getImageData(0, 0, width, height);
-        const params = Object.assign({ leftTopPosition: this.leftTopPosition, rightBottomPosition: this.rightBottomPosition }, this.mockMovePx && { mockMovePx: this.mockMovePx }, this.boundaryValue && { boundaryValue: this.boundaryValue });
-        const adjust = new ImageColorUtils(params);
-        const originColorMedia = adjust.pickLineColor(imageData, width);
-        const adjustLeftTopPosition = adjust.leftTopMockMove({ originColorMedia, imageData, width });
-        const adjustRightBottomPosition = adjust.rightBottomMockMove({ originColorMedia, imageData, width });
+    adjust(leftTopPosition, rightBottomPosition) {
+        if (!leftTopPosition.length || !rightBottomPosition.length) {
+            throw new Error('Position have to be correct！');
+        }
+        const originColorMedia = this.pickLineColor({ leftTopPosition, rightBottomPosition });
+        const adjustLeftTopPosition = this.leftTopMockMove({ originColorMedia, leftTopPosition, rightBottomPosition });
+        const adjustRightBottomPosition = this.rightBottomMockMove({ originColorMedia, leftTopPosition, rightBottomPosition });
         const adjustWidth = adjustRightBottomPosition[0] - adjustLeftTopPosition[0];
         const adjustHeight = adjustRightBottomPosition[1] - adjustLeftTopPosition[1];
         const x = adjustLeftTopPosition[0];
@@ -243,10 +281,10 @@ class ImageColorUtils {
         }
         return [Math.floor(h * 100), Math.round(s * 100), Math.round(l * 100)];
     }
-    hex2rgb(hex) {
+    static hex2rgb(hex) {
         return [parseInt("0x" + hex.slice(1, 3)), parseInt("0x" + hex.slice(3, 5)), parseInt("0x" + hex.slice(5, 7))];
     }
-    rgb2hex(rgb) {
+    static rgb2hex(rgb) {
         const r = rgb[0];
         const g = rgb[1];
         const b = rgb[2];
