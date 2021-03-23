@@ -74,6 +74,7 @@ Desc  | Type
 ### \# adjust - 色彩边界值计算
 ```javascript
 import { ImageColorUtils } from 'image-color-utils'
+
 const imageColorUtils = new ImageColorUtils({ 
   origin: img,
   width: canvas.width, 
@@ -97,6 +98,7 @@ Desc  | Type
 ### \# compare - 色值相识度对比
 ```javascript
 import { ImageColorUtils } from 'image-color-utils'
+
 const res = ImageColorUtils.compare(color1, color2, boundaryValue)
 ```
 ##### Arguments
@@ -145,6 +147,7 @@ HEX色值 | string
 ## Attribute
 ```javascript
 import { ImageColorUtils } from 'image-color-utils'
+
 const imageColorUtils = new ImageColorUtils({ 
   origin: img,
   width: canvas.width,
