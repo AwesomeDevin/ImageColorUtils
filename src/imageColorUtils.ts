@@ -169,8 +169,8 @@ export class ImageColorUtils {
   }
 
 
-  public static compare(oldVal: number[], newVal: number[], boundaryValue: number): boolean {
-    return !ImageColorUtils.isAdjust(oldVal, newVal, boundaryValue)
+  public static compare(oldVal: number[], newVal: number[], boundaryValue?: number): boolean {
+    return !ImageColorUtils.isAdjust(oldVal, newVal, boundaryValue || ImageColorUtils.boundaryValue)
   }
 
   // 求平均值

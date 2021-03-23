@@ -64,7 +64,6 @@ Name  | Desc  | Type | Default | required
 -------- | -------- | -------- | -------- | -----
 x | 目标点距离画布左上角x坐标 | number | - | true
 y | 目标点距离画布左上角y坐标 | number | - | true
-boundaryValue | 色彩边界阈值（作用于色值相似度对比, 阈值越高，相似条件越高） | number | 10 | false
 
 ##### Returns
 Desc  | Type 
@@ -106,6 +105,8 @@ Name  | Desc  | Type | Default | required
 -------- | -------- | -------- | -------- | -----
 color1 | rgb 色值1 | number[] | - | true
 color2 | rgb 色值2 | number[] | - | true
+boundaryValue | 色彩边界阈值（作用于色值相似度对比, 阈值越高，相似条件越高） | number | 10 | false
+
 ##### Returns
 Desc  | Type 
 -------- | -------- 
@@ -115,7 +116,7 @@ Desc  | Type
 ```javascript
 import { ImageColorUtils } from 'image-color-utils'
 
-const rgb = ImageColorUtils.HEX2RGB(hex)
+const rgb = ImageColorUtils.hex2rgb(hex)
 ```
 ##### Arguments
 Name  | Desc  | Type | Default | required
@@ -131,7 +132,7 @@ RGB色值 | number[]
 ```javascript
 import { ImageColorUtils } from 'image-color-utils'
 
-const hex = ImageColorUtils.RGB2HEX(rgb)
+const hex = ImageColorUtils.rgb2hex(rgb)
 ```
 ##### Arguments
 Name  | Desc  | Type | Default | required

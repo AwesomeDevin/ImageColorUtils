@@ -56,6 +56,6 @@ export declare class ImageColorUtils{
 
   public static hex2rgb(hex: string): number[] 
   public static rgb2hex(rgb: number[]): string
-  public static compare(oldVal: number[], newVal: number[],  boundaryValue: number): boolean
+  public static compare(oldVal: number[], newVal: number[],  boundaryValue?: number): boolean
 
 }

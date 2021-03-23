@@ -92,7 +92,7 @@ class ImageColorUtils {
         return false;
     }
     static compare(oldVal, newVal, boundaryValue) {
-        return !ImageColorUtils.isAdjust(oldVal, newVal, boundaryValue);
+        return !ImageColorUtils.isAdjust(oldVal, newVal, boundaryValue || ImageColorUtils.boundaryValue);
     }
     static getAverage(data, valueType) {
         const total = data.reduce((x, y) => [x[0] + y[0], x[1] + y[1], x[2] + y[2]]);
