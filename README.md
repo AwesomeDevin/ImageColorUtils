@@ -26,10 +26,10 @@ npm install image-color-utils --save
 import { ImageColorUtils } from 'image-color-utils'
 
 const params = {
-  origin
-  width
-  height
-  boundaryValue
+  origin: img,
+  width: canvas.width,
+  height: canvas.height,
+  boundaryValue,
   mockMovePx
 }
 const imageColorUtils = new ImageColorUtils(params)
@@ -78,8 +78,8 @@ const imageColorUtils = new ImageColorUtils({
   origin: img,
   width: canvas.width, 
   height: canvas.height,  
-  boundaryValue: self.boundaryValue, 
-  mockMovePx: self.mockMovePx 
+  boundaryValue,
+  mockMovePx
 })
 imageColorUtils.adjust(leftTopPosition, rightBottomPosition)
 ```
@@ -147,10 +147,10 @@ HEX色值 | string
 import { ImageColorUtils } from 'image-color-utils'
 const imageColorUtils = new ImageColorUtils({ 
   origin: img,
-  width: Math.floor(self.canvas.width), 
-  height: Math.floor(self.canvas.height),  
-  boundaryValue: self.boundaryValue, 
-  mockMovePx: self.mockMovePx 
+  width: canvas.width,
+  height: canvas.height,
+  boundaryValue,
+  mockMovePx
 })
 
 console.log(imageColorUtils.canvas)
