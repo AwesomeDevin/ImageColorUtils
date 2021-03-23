@@ -28,9 +28,9 @@ const imageColorUtils = new ImageColorUtils(params)
 ##### Arguments
 Name | Desc | Type | Default | required
 ---- | ---- | ---- | ----- | ----
-origin | 数据源 | ImageBitmap / HTMLImageElement / string | - | true
-width | 画板宽度 | number | - | true
-height | 画板高度 | number | - | true
+origin | 数据源(可以是 http链接 / ImageBitmap / HTMLImageElement ) | string / HTMLImageElement / ImageBitmap  /  | - | true
+width | 画板宽度 | number | - | false (不传参将根据图片宽高自适应，origin 为 ImageBitmap / HTMLImageElemen，必填)
+height | 画板高度 | number | - | false (不传参将根据图片宽高自适应，origin 为 ImageBitmap / HTMLImageElemen，必填)
 mockMovePx |  边界扫描距离（最大边界扫描距离, 扫描方向由内向外） | number | 30 | false
 boundaryValue | 色彩边界阈值（作用于色值相似度对比, 阈值越高，相似条件越高） | number | 10 | false
 ##### Returns

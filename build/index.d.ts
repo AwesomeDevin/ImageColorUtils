@@ -1,10 +1,27 @@
-export interface AdjustConstructor {
-  origin: ImageBitmap | HTMLImageElement
+export interface ICommon {
   mockMovePx?: number
   boundaryValue?: number
+}
+
+export interface IImageBitmap {
+  origin: ImageBitmap
   width: number  
   height: number
 }
+
+export interface IHTMLImageElement {
+  origin: HTMLImageElement
+  width: number  
+  height: number
+}
+
+export interface IImageUrl {
+  origin: string
+  width?: number
+  height?: number
+}
+
+export type AdjustConstructor = ICommon & (IImageBitmap | IHTMLImageElement | IImageUrl)
 
 export interface MediaValue {
   [key: string]: number[]
@@ -25,7 +42,7 @@ export interface PickLineColorParams{
 
 export declare class ImageColorUtils{
   constructor(params: AdjustConstructor) 
-  
+
   public canvas: OffscreenCanvas
   public ctx: OffscreenCanvasRenderingContext2D
   public imageData: ImageData

@@ -10,18 +10,31 @@ type ImageData = {
   data: Uint8ClampedArray
 }
 
-// interface Adjust {
-//   // pickLineColor(type: string, width: number): void
-//   // leftTopPosition: number[]
-// }
 
-interface AdjustConstructor {
-  origin: ImageBitmap | HTMLImageElement | string
+interface ICommon {
   mockMovePx?: number
   boundaryValue?: number
+}
+
+interface IImageBitmap {
+  origin: ImageBitmap
   width: number  
   height: number
 }
+
+interface IHTMLImageElement {
+  origin: HTMLImageElement
+  width: number  
+  height: number
+}
+
+interface IImageUrl {
+  origin: string
+  width?: number
+  height?: number
+}
+
+type AdjustConstructor = ICommon & (IImageBitmap | IHTMLImageElement | IImageUrl)
 
 interface MediaValue {
   [key: string]: number[]
@@ -47,8 +60,6 @@ export class ImageColorUtils {
 
   private static mockMovePx: number  // 移动的像素
   private static boundaryValue: number  // 边界值
-  private static width: number  // 画板宽
-  private static height: number // 画板高
   public canvas: OffscreenCanvas
   public ctx: OffscreenCanvasRenderingContext2D
   public imageData: ImageData
@@ -57,34 +68,39 @@ export class ImageColorUtils {
   constructor (params: AdjustConstructor) {
     const { origin, mockMovePx = 30, boundaryValue = 10, width, height} = params || {}
     if(!origin){
-      throw new Error('Origin not found')
-    }else if(!width){
-      throw new Error('Width not found')
-    }else if(!height){
-      throw new Error('Height not found')
+      throw new Error('Origin is necessary')
+    }else if((origin instanceof ImageBitmap || origin instanceof HTMLImageElement) && (!width || !height)){
+      throw new Error('Because of origin is not a http link, width and height is necessary ')
     }
-
 
     ImageColorUtils.mockMovePx = mockMovePx 
     ImageColorUtils.boundaryValue = boundaryValue 
-    ImageColorUtils.width = width
-    ImageColorUtils.height = height
     this.init(origin, width, height)
-
   }
 
   private init(origin: string | ImageBitmap | HTMLImageElement, width: number, height: number): void {
     try{
+    
       if(typeof origin === 'string'){
+        // 为http链接
         const img = new Image()
         img.src = origin
         img.crossOrigin = "Anonymous";
         img.onload = () => {
-          this.initCanvas(img, width, height)
+          const canvasWidth = width || img.width
+          const canvasHeight = height || (canvasWidth / img.width) * img.height;
+          this.initCanvas(img, canvasWidth, canvasHeight)
+        }
+        if(img.complete){
+          const canvasWidth = width || img.width
+          const canvasHeight = height || (canvasWidth / img.width) * img.height;
+          this.initCanvas(img, canvasWidth, canvasHeight)
         }
       }else if( origin instanceof ImageBitmap ){
+        // 为ImageBitmap
         this.initCanvas(origin, width, height)
       }else if( origin instanceof HTMLImageElement ) {
+        // 为HTMLImageElement
         this.initCanvas(origin, width, height)
       }else{
         throw new Error('The origin format is not supported')
@@ -107,7 +123,7 @@ export class ImageColorUtils {
 
 
   public pickColor( x: number, y: number,  type = 'rgb'): number[] {
-    return type === 'rgb' ? ImageColorUtils.getRGB(this.imageData.data, x, y, ImageColorUtils.width) : ImageColorUtils.getHSL(this.imageData.data, x, y, ImageColorUtils.width)
+    return type === 'rgb' ? ImageColorUtils.getRGB(this.imageData.data, x, y, this.canvas.width) : ImageColorUtils.getHSL(this.imageData.data, x, y, this.canvas.width)
   }
 
   // 获取四条边的中位数色值
@@ -130,7 +146,7 @@ export class ImageColorUtils {
       for (const position of lineArray) {
         const x = position[0]
         const y = position[1]
-        const [r, g, b] = ImageColorUtils.getRGB(data, x, y, ImageColorUtils.width)
+        const [r, g, b] = ImageColorUtils.getRGB(data, x, y, this.canvas.width)
         rgbArray.push([r, g, b])
       }
       // media[key] = ImageColorUtils.getAverage(rgbArray, valueType)
@@ -340,7 +356,7 @@ export class ImageColorUtils {
     // const params = Object.assign({origin: this.origin, width: ImageColorUtils.width, height: ImageColorUtils.height}, ImageColorUtils.mockMovePx && {mockMovePx: ImageColorUtils.mockMovePx}, ImageColorUtils.boundaryValue && {boundaryValue: ImageColorUtils.boundaryValue} )
     // const adjust = new ImageColorUtils(params)
     if( !leftTopPosition.length || !rightBottomPosition.length){
-      throw new Error('Position have to be correct！')
+      throw new Error('Position is invalid！')
     }
     const originColorMedia = this.pickLineColor({leftTopPosition, rightBottomPosition }) // 初始rgb值
     const adjustLeftTopPosition = this.leftTopMockMove({ originColorMedia, leftTopPosition, rightBottomPosition }) // 修正后左上角坐标

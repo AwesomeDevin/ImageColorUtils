@@ -2,18 +2,13 @@ class ImageColorUtils {
     constructor(params) {
         const { origin, mockMovePx = 30, boundaryValue = 10, width, height } = params || {};
         if (!origin) {
-            throw new Error('Origin not found');
+            throw new Error('Origin is necessary');
         }
-        else if (!width) {
-            throw new Error('Width not found');
-        }
-        else if (!height) {
-            throw new Error('Height not found');
+        else if ((origin instanceof ImageBitmap || origin instanceof HTMLImageElement) && (!width || !height)) {
+            throw new Error('Because of origin is not a http link, width and height is necessary ');
         }
         ImageColorUtils.mockMovePx = mockMovePx;
         ImageColorUtils.boundaryValue = boundaryValue;
-        ImageColorUtils.width = width;
-        ImageColorUtils.height = height;
         this.init(origin, width, height);
     }
     init(origin, width, height) {
@@ -23,8 +18,15 @@ class ImageColorUtils {
                 img.src = origin;
                 img.crossOrigin = "Anonymous";
                 img.onload = () => {
-                    this.initCanvas(img, width, height);
+                    const canvasWidth = width || img.width;
+                    const canvasHeight = height || (canvasWidth / img.width) * img.height;
+                    this.initCanvas(img, canvasWidth, canvasHeight);
                 };
+                if (img.complete) {
+                    const canvasWidth = width || img.width;
+                    const canvasHeight = height || (canvasWidth / img.width) * img.height;
+                    this.initCanvas(img, canvasWidth, canvasHeight);
+                }
             }
             else if (origin instanceof ImageBitmap) {
                 this.initCanvas(origin, width, height);
@@ -52,7 +54,7 @@ class ImageColorUtils {
         }
     }
     pickColor(x, y, type = 'rgb') {
-        return type === 'rgb' ? ImageColorUtils.getRGB(this.imageData.data, x, y, ImageColorUtils.width) : ImageColorUtils.getHSL(this.imageData.data, x, y, ImageColorUtils.width);
+        return type === 'rgb' ? ImageColorUtils.getRGB(this.imageData.data, x, y, this.canvas.width) : ImageColorUtils.getHSL(this.imageData.data, x, y, this.canvas.width);
     }
     pickLineColor({ leftTopPosition, rightBottomPosition, type, valueType = 'rgb' }) {
         const data = this.imageData.data;
@@ -72,7 +74,7 @@ class ImageColorUtils {
             for (const position of lineArray) {
                 const x = position[0];
                 const y = position[1];
-                const [r, g, b] = ImageColorUtils.getRGB(data, x, y, ImageColorUtils.width);
+                const [r, g, b] = ImageColorUtils.getRGB(data, x, y, this.canvas.width);
                 rgbArray.push([r, g, b]);
             }
             media[key] = ImageColorUtils.getMedian(rgbArray, valueType);
