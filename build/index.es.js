@@ -235,7 +235,7 @@ class ImageColorUtils {
     }
     adjust(leftTopPosition, rightBottomPosition) {
         if (!leftTopPosition.length || !rightBottomPosition.length) {
-            throw new Error('Position have to be correct！');
+            throw new Error('Position is invalid！');
         }
         const originColorMedia = this.pickLineColor({ leftTopPosition, rightBottomPosition });
         const adjustLeftTopPosition = this.leftTopMockMove({ originColorMedia, leftTopPosition, rightBottomPosition });
