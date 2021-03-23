@@ -23,6 +23,15 @@ npm install image-color-utils --save
 
 ### \# ImageColorUtils
 ```javascript
+import { ImageColorUtils } from 'image-color-utils'
+
+const params = {
+  origin
+  width
+  height
+  boundaryValue
+  mockMovePx
+}
 const imageColorUtils = new ImageColorUtils(params)
 ```
 ##### Arguments
