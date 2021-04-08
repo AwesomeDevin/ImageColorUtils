@@ -13,10 +13,17 @@
   "files": [
     "build/"
   ],
-  "keywords":["pick","color","compare","pick color","Color similarity"],
+  "keywords": [
+    "pick",
+    "color",
+    "compare",
+    "pick color",
+    "Color similarity"
+  ],
   "dependencies": {
+    "promises-aplus-tests": "^2.1.2"
   },
-  "repository":"https://github.com/o2team/image-color-utils",
+  "repository": "https://github.com/o2team/image-color-utils",
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.17.0",
     "@typescript-eslint/parser": "^4.17.0",
