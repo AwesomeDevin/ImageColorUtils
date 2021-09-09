@@ -2,6 +2,8 @@
 
 ## DESC
 提供`取色`、`色值相似度对比`、`色彩边界值计算`等能力。  
+- 提取图片主色
+- 区域截图
 ### [demo](http://47.105.188.15:3002/)
 ### [codesandbox](https://codesandbox.io/s/image-color-utils-ghrvb)
 ![](https://raw.githubusercontent.com/o2team/image-color-utils/main/static/demo4.gif)
