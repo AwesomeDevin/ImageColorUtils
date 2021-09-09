@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+  <head lang="en">
+    <meta charset="UTF-8" />
+    <title>My First WebComponent</title>
+    <style>
+      img{
+        width: 200px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="title">测试webcomponent</h1>
+    <img src="https://pic4.zhimg.com/80/v2-e4c908ae5a7c2d496279c63381a6e757_720w.jpg" />
+    <popup-info id="info" img="https://pic4.zhimg.com/80/v2-e4c908ae5a7c2d496279c63381a6e757_720w.jpg" text="Your card validation code (CVC) is an extra security feature — it is the last 3 or 4 numbers on the back of your card." />
+    <script>
+      class PopUpInfo extends HTMLElement {
+        constructor() {
+          // 必须首先调用 super方法
+          super();
+
+          // 元素的具体功能写在下面
+          var shadow = this.attachShadow({mode: 'open'});
+
+                    // 创建 span
+          var wrapper = document.createElement('span');
+          wrapper.setAttribute('class','wrapper');
+          var icon = document.createElement('span');
+          icon.setAttribute('class','icon');
+          icon.setAttribute('tabindex', 0);
+          var info = document.createElement('span');
+          info.setAttribute('class','info');
+
+          // 获取属性的内容并将内容添加到 info 元素内
+          var text = this.getAttribute('text');
+          info.textContent = text;
+
+          // 插入 icon
+          var imgUrl;
+          if(this.hasAttribute('img')) {
+            imgUrl = this.getAttribute('img');
+          } else {
+            imgUrl = 'img/default.png';
+          }
+          var img = document.createElement('img');
+          img.src = imgUrl;
+          icon.appendChild(img);
+
+          // 为 shadow DOM 添加一些 CSS 样式
+          var style = document.createElement('style');
+
+          style.textContent = `
+          .wrapper {
+            position: relative;
+          }
+
+          .info {
+            font-size: 0.8rem;
+            width: 200px;
+            display: inline-block;
+            border: 1px solid black;
+            padding: 10px;
+            background: white;
+            border-radius: 10px;
+            opacity: 0;
+            transition: 0.6s all;
+            position: absolute;
+            bottom: 20px;
+            left: 10px;
+            z-index: 3;
+          }
+
+          img {
+            width: 400px;
+          }
+
+          .icon:hover + .info, .icon:focus + .info {
+            opacity: 1;
+          }`;
+
+          // 将所创建的元素添加到 Shadow DOM 上
+          shadow.appendChild(style);
+          shadow.appendChild(wrapper);
+          wrapper.appendChild(icon);
+          wrapper.appendChild(info);
+
+          
+        }
+      }
+      customElements.define('popup-info', PopUpInfo);
+    </script>
+
+    <script>
+      
+    </script>
+
+      
+  </body>
+</html>

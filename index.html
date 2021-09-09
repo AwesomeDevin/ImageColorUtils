@@ -313,5 +313,36 @@
 
     
   </script>
+  <script>
+    function Parent(name)  
+		{  
+		  	this.age=20; 
+		    this.sayAge=function()  
+		    {  
+		        console.log(this.age);  
+		    }  
+        console.log('name',name)
+      
+        this.name = name
+		}  
+		Parent.prototype.sex='男';
+    Parent.prototype.sayName = function(){
+      console.log('>>>',this === Parent.prototype)
+  console.log('sayName',this.sex)
+}
+		function Child()  
+		{  
+			Parent.call(this,...arguments); 
+		}  
+
+		Child.prototype=new Parent();   /*原型链实现继承*/
+
+    var c=new Child('小c');
+    var p = new Parent('小p')
+	    c.sayAge();
+c.sayName()
+p.sayName()
+	    console.log(c.sex,c.age,c.__proto__,Child.prototype);
+  </script>
 </body>
 </html>
