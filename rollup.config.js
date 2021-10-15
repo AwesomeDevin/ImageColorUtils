@@ -2,6 +2,7 @@ import polyfill from 'rollup-plugin-polyfill'
 import typescript from 'rollup-plugin-typescript2';
 import serve from 'rollup-plugin-serve'
 import commonjs from 'rollup-plugin-commonjs'
+// import {liveServer} from 'rollup-plugin-live-server';
 
 let defaults = { compilerOptions: { declaration: true } };
  let override = { compilerOptions: { declaration: false } };
@@ -27,7 +28,6 @@ export default {
   },{
     file: './build/index.js',
     format: 'cjs',
-    name: 'example'
   }],
   plugins
 }

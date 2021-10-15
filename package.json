@@ -29,7 +29,8 @@
     "@babel/template": "^7.15.4",
     "@babel/traverse": "^7.15.4",
     "@babel/types": "^7.15.4",
-    "promises-aplus-tests": "^2.1.2"
+    "promises-aplus-tests": "^2.1.2",
+    "rollup-plugin-live-server": "^1.0.3"
   },
   "repository": "https://github.com/o2team/image-color-utils",
   "devDependencies": {

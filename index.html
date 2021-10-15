@@ -65,7 +65,7 @@
     </label>
     <label class="flex">
       边界自动吸附（找不到临界点则不移动）：
-      <input type='radio' value='adjust' name='action' onchange="changeAction(this.value)" />
+      <input type='radio' value='adjust' name='action' onchange="changeAction(this.value)" />  <button id="undo" style="margin-left: 20px;">撤销</button>
     </label>
 
     <div class="flex">
@@ -128,6 +128,7 @@
         this.colorBlock2 = document.getElementById('color-block2')
         this.colorBlock3 = document.getElementById('color-block3')
         this.colorBlock4 = document.getElementById('color-block4')
+        this.undo = document.getElementById('undo')
 
         this.boundary = document.getElementById('boundary')
         this.boundaryText = document.getElementById('boundaryText')
@@ -144,9 +145,10 @@
         this.img = new Image()
         this.img.crossOrigin = 'Anonymous'
         this.img.onload = () => {
-          
-          const height = width/this.img.width * this.img.height
+         
+          const height = width * this.img.height / this.img.width
           // 计算出画布的宽高
+
           this.initCanvas(width, height)
           this.initEvent()
         }
@@ -159,6 +161,8 @@
         const lineColor = '#12f430'
         this.canvas.width = width
         this.canvas.height = height
+        this.canvas.style.width = width + 'px'
+        this.canvas.style.height = height + 'px'
         this.ctx.lineWidth = 3
         this.ctx.strokeStyle = lineColor 
         this.clear()
@@ -213,6 +217,11 @@
           self.draw()
         }
 
+        this.undo.addEventListener('click',()=>{
+          self.rects.splice(self.rects.length - 1 )
+          self.draw()
+        })
+
         this.boundary.addEventListener('change',(e)=>{
           const value = parseInt(e.target.value)
           this.boundaryValue = value
@@ -230,6 +239,7 @@
           reader.addEventListener('load', () => {
             this.img.src = reader.result;
             this.rects = []
+            // this.initCanvas()
           }, false);
           reader.readAsDataURL(e.target.files[0]);
         })
@@ -313,36 +323,6 @@
 
     
   </script>
-  <script>
-    function Parent(name)  
-		{  
-		  	this.age=20; 
-		    this.sayAge=function()  
-		    {  
-		        console.log(this.age);  
-		    }  
-        console.log('name',name)
-      
-        this.name = name
-		}  
-		Parent.prototype.sex='男';
-    Parent.prototype.sayName = function(){
-      console.log('>>>',this === Parent.prototype)
-  console.log('sayName',this.sex)
-}
-		function Child()  
-		{  
-			Parent.call(this,...arguments); 
-		}  
-
-		Child.prototype=new Parent();   /*原型链实现继承*/
-
-    var c=new Child('小c');
-    var p = new Parent('小p')
-	    c.sayAge();
-c.sayName()
-p.sayName()
-	    console.log(c.sex,c.age,c.__proto__,Child.prototype);
-  </script>
+ 
 </body>
 </html>
