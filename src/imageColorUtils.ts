@@ -53,6 +53,14 @@ interface PickLineColorParams{
   valueType?: string
 }
 
+/**
+ * 智能吸附步骤
+ * 1. 获取左上角/右下角坐标
+ * 2. 将矩形的四条边模拟为四个二维数组
+ * 3. 提取二位数组对应的色值，通过求色值中位数（兼容渐变背景色）,判断该色值是否与初始色差相差较大(n)
+ * 4. 模拟移动矩形的左上/右下坐标(nPX内)
+ * 5. 有则对矩形的左上/右下坐标进行调整，来实现矩形四条边的修改
+ */
 export class ImageColorUtils {
 
   // private origin: ImageBitmap | HTMLImageElement
