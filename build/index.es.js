@@ -83,10 +83,10 @@ class ImageColorUtils {
     }
     static isAdjust(oldVal, newVal, boundaryValue) {
         const val = boundaryValue;
-        const diffH = Math.abs(oldVal[0] - newVal[0]);
-        const diffS = Math.abs(oldVal[1] - newVal[1]);
-        const diffL = Math.abs(oldVal[2] - newVal[2]);
-        if (diffH >= val || diffL >= val || diffS >= val) {
+        const distance = Math.sqrt((oldVal[0] - newVal[0]) * (oldVal[0] - newVal[0]) + (oldVal[1] - newVal[1]) * (oldVal[1] - newVal[1]) + (oldVal[2] - newVal[2]) * (oldVal[2] - newVal[2]));
+        const diff = distance / Math.sqrt(255 * 255 + 255 * 255 + 255 * 255) * 100;
+        console.log('distance,diff', distance, diff, val);
+        if (diff >= val) {
             return true;
         }
         return false;

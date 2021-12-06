@@ -163,14 +163,12 @@ export class ImageColorUtils {
     return media
   }
 
-  // 判断是否达到修正的阈值
+  // 判断是否达到修正的阈值 https://stackoverflow.com/questions/9018016/how-to-compare-two-colors-for-similarity-difference
   private static isAdjust (oldVal: number[], newVal: number[], boundaryValue: number): boolean {
     const val = boundaryValue // 阈值
-    const diffH = Math.abs(oldVal[0] - newVal[0])
-    const diffS = Math.abs(oldVal[1] - newVal[1])
-    const diffL = Math.abs(oldVal[2] - newVal[2])
-
-    if (diffH >= val || diffL >= val || diffS >= val) {
+    const distance = Math.sqrt((oldVal[0] - newVal[0]) * (oldVal[0] - newVal[0]) + (oldVal[1] - newVal[1]) * (oldVal[1] - newVal[1]) + (oldVal[2] - newVal[2])*(oldVal[2] - newVal[2]))
+    const diff = distance / Math.sqrt(255 * 255 + 255 * 255 + 255 * 255) * 100
+    if (diff >= val) {
       return true
     }
     return false

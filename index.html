@@ -83,8 +83,8 @@
     <h3>参数配置</h3>
     <div class="flex">
       色彩边界阈值（阈值越高，相似条件越低）：
-      <input type='range' id='boundary' name='boundaryValue' value="10"  min="5" max="100" step="5"/>
-      <span id="boundaryText">10</span>
+      <input type='range' id='boundary' name='boundaryValue' value="2"  min="2" max="20" step="2"/>
+      <span id="boundaryText">2</span>
     </div>
     <div class="flex">
       边界扫描距离（由内向外）：
@@ -121,7 +121,7 @@
         const width = 500
         this.isDrawing = false
         this.rects = []
-        this.boundaryValue = 10
+        this.boundaryValue = 2
         this.mockMovePx = 30
 
         this.colorBlock1 = document.getElementById('color-block1')
