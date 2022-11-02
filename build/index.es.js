@@ -386,6 +386,7 @@ class ImageColorUtils {
     pickColors() {
         const similarColorsMap = {};
         const res = [];
+        const boundaryValue = 120;
         let lastColor;
         for (let x = 1; x < this.canvas.width; x += ImageColorUtils.ParticleSize) {
             for (let y = 1; y < this.canvas.height; y += ImageColorUtils.ParticleSize) {
@@ -403,7 +404,8 @@ class ImageColorUtils {
                     ImageColorUtils.compare(rgb, lastColor, ImageColorUtils.boundaryValue)) {
                     let insert = false;
                     for (const similarValue of similarValues) {
-                        if (ImageColorUtils.compare(rgb, similarValue[0], ImageColorUtils.boundaryValue)) {
+                        if (ImageColorUtils.compare(rgb, similarValue[0], boundaryValue) ||
+                            ImageColorUtils.compare(rgb, similarValue[similarValue.length - 1], boundaryValue)) {
                             similarValue.push(rgb);
                             insert = true;
                         }
@@ -416,8 +418,9 @@ class ImageColorUtils {
         }
         const values = Object.values(similarColorsMap);
         values
+            .sort((x, y) => (x.length < y.length ? 1 : -1))
             .forEach((item) => {
-            if (!res.some((value) => ImageColorUtils.compare(value, ImageColorUtils.getMost(item)))) {
+            if (!res.some((value) => ImageColorUtils.compare(value, ImageColorUtils.getMost(item), boundaryValue))) {
                 res.push(ImageColorUtils.getMost(item));
             }
         });

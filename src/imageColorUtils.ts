@@ -649,6 +649,7 @@ export class ImageColorUtils {
     const similarColorsMap: { [key: string]: number[][] } = {}
 
     const res: number[][] = []
+    const boundaryValue = 120
 
     let lastColor
 
@@ -683,7 +684,13 @@ export class ImageColorUtils {
               ImageColorUtils.compare(
                 rgb,
                 similarValue[0],
-                ImageColorUtils.boundaryValue
+                boundaryValue
+                // 'lab'
+              ) ||
+              ImageColorUtils.compare(
+                rgb,
+                similarValue[similarValue.length - 1],
+                boundaryValue
                 // 'lab'
               )
             ) {
@@ -705,12 +712,16 @@ export class ImageColorUtils {
     // )
     const values = Object.values(similarColorsMap)
     values
-      // .sort((x, y) => (x.length < y.length ? 1 : -1))
-      // .filter((item) => item.length > 200)
+      .sort((x, y) => (x.length < y.length ? 1 : -1))
+      // .filter((item) => item.length > 100)
       .forEach((item) => {
         if (
           !res.some((value) =>
-            ImageColorUtils.compare(value, ImageColorUtils.getMost(item))
+            ImageColorUtils.compare(
+              value,
+              ImageColorUtils.getMost(item),
+              boundaryValue
+            )
           )
         ) {
           res.push(ImageColorUtils.getMost(item))
