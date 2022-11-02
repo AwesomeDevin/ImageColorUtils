@@ -244,8 +244,11 @@ export class ImageColorUtils {
     } else if (type === 'lab') {
       const labOldVal = ImageColorUtils.rgb2lab(oldVal)
       const labnewVal = ImageColorUtils.rgb2lab(newVal)
-
-      console.log(oldVal, newVal, distance)
+      const [L_1, A_1, B_1] = labOldVal
+      const [L_2, A_2, B_2] = labnewVal
+      distance = Math.abs(
+        ((L_1 - L_2) * 2 + (A_1 - A_2) * 2 + (B_1 - B_2) * 2) / 2
+      )
     }
     // const diff = (distance / Math.sqrt(360 * 360 + 100 * 100 + 100 * 100)) * 100
     if (distance >= val) {
@@ -649,7 +652,7 @@ export class ImageColorUtils {
     const similarColorsMap: { [key: string]: number[][] } = {}
 
     const res: number[][] = []
-    const boundaryValue = 120
+    const boundaryValue = 7
 
     let lastColor
 
@@ -684,14 +687,14 @@ export class ImageColorUtils {
               ImageColorUtils.compare(
                 rgb,
                 similarValue[0],
-                boundaryValue
-                // 'lab'
+                boundaryValue,
+                'lab'
               ) ||
               ImageColorUtils.compare(
                 rgb,
                 similarValue[similarValue.length - 1],
-                boundaryValue
-                // 'lab'
+                boundaryValue,
+                'lab'
               )
             ) {
               similarValue.push(rgb)
@@ -705,22 +708,18 @@ export class ImageColorUtils {
       }
     }
 
-    // console.log(
-    //   Object.values(similarColorsMap).sort((x, y) =>
-    //     x.length < y.length ? 1 : -1
-    //   )
-    // )
     const values = Object.values(similarColorsMap)
     values
       .sort((x, y) => (x.length < y.length ? 1 : -1))
-      // .filter((item) => item.length > 100)
+      .filter((item) => item.length > 100)
       .forEach((item) => {
         if (
           !res.some((value) =>
             ImageColorUtils.compare(
               value,
               ImageColorUtils.getMost(item),
-              boundaryValue
+              boundaryValue,
+              'lab'
             )
           )
         ) {
@@ -728,7 +727,6 @@ export class ImageColorUtils {
         }
       })
 
-    // ImageColorUtils.getRGB(this.imageData.data, x, y, this.canvas.width)
     return {
       rgb: res.map((item) => `rgb(${item.join(',')})`),
       hex: res.map((item) => '#' + ImageColorUtils.rgb2hex(item)),

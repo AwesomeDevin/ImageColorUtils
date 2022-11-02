@@ -50,7 +50,7 @@
       height: 50px;
       color: #ccc;
       line-height: 120px;    
-      margin-bottom: 20px;  
+      margin: 20px 0;  
     }
   </style>
 </head>
@@ -235,7 +235,6 @@
           onload: ()=>{
             this.colors.innerHTML=''
             const res = colorUtils.pickColors()
-            console.log( ImageColorUtils.compare([144, 173, 255],  [144, 173, 254], 50), res)
             for(const color of res.rgb){
               const dom = document.createElement('div')
               dom.className = 'color'
@@ -306,7 +305,7 @@
         })
         
         this.compareBtn.addEventListener('click', () => {
-          const result = ImageColorUtils.compare(blockColor1, blockColor2, this.boundaryValue, 'hsv')
+          const result = ImageColorUtils.compare(blockColor1, blockColor2, this.boundaryValue, 'rgb')
           this.compareBtn.innerHTML = `（结果：${result ? '相似': '不相似'}）点击继续对比`
         })
 
