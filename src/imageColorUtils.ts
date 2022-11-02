@@ -97,7 +97,7 @@ export class ImageColorUtils {
       origin,
       mockMovePx = 30,
       boundaryValue = 10,
-      ParticleSize = 2,
+      ParticleSize = 4,
       width,
       height,
       onload,
@@ -225,25 +225,27 @@ export class ImageColorUtils {
     oldVal: number[],
     newVal: number[],
     boundaryValue: number,
-    type?: 'rgb' | 'hsv'
+    type?: 'rgb' | 'lab'
   ): boolean {
     const val = boundaryValue // 阈值
     let distance
     if (!type || type === 'rgb') {
+      const [R_1, G_1, B_1] = oldVal
+      const [R_2, G_2, B_2] = newVal
+      const rmean = (R_1 + R_2) / 2
+      const R = R_1 - R_2
+      const G = G_1 - G_2
+      const B = B_1 - B_2
       distance = Math.sqrt(
-        (oldVal[0] - newVal[0]) * (oldVal[0] - newVal[0]) +
-          (oldVal[1] - newVal[1]) * (oldVal[1] - newVal[1]) +
-          (oldVal[2] - newVal[2]) * (oldVal[2] - newVal[2])
+        (2 + rmean / 256) * R ** 2 +
+          4 * G ** 2 +
+          (2 + (255 - rmean) / 256) * B ** 2
       )
-    } else if (type === 'hsv') {
-      const hsvOldVal = ImageColorUtils.rgb2hsv(oldVal)
-      const hsvnewVal = ImageColorUtils.rgb2hsv(newVal)
-      distance = Math.sqrt(
-        (hsvOldVal[0] - hsvnewVal[0]) * (hsvOldVal[0] - hsvnewVal[0]) +
-          (hsvOldVal[1] - hsvnewVal[1]) * (hsvOldVal[1] - hsvnewVal[1]) +
-          (hsvOldVal[2] - hsvnewVal[2]) * (hsvOldVal[2] - hsvnewVal[2])
-      )
-      console.log(oldVal, newVal, distance, hsvOldVal, hsvnewVal)
+    } else if (type === 'lab') {
+      const labOldVal = ImageColorUtils.rgb2lab(oldVal)
+      const labnewVal = ImageColorUtils.rgb2lab(newVal)
+
+      console.log(oldVal, newVal, distance)
     }
     // const diff = (distance / Math.sqrt(360 * 360 + 100 * 100 + 100 * 100)) * 100
     if (distance >= val) {
@@ -256,7 +258,7 @@ export class ImageColorUtils {
     oldVal: number[],
     newVal: number[],
     boundaryValue?: number,
-    type?: 'hsv' | 'rgb'
+    type?: 'lab' | 'rgb'
   ): boolean {
     return !ImageColorUtils.isAdjust(
       oldVal,
@@ -340,8 +342,17 @@ export class ImageColorUtils {
     width: number
   ): number[] {
     const index = (width * (y - 1) + x - 1) * 4
-    const [r, g, b] = [data[index], data[index + 1], data[index + 2]]
-    return [r, g, b]
+    const [r, g, b, a] = [
+      data[index],
+      data[index + 1],
+      data[index + 2],
+      data[index + 3],
+    ]
+    // const alpha = 1 - a
+    // const red = Math.round((a * (r / 255) + alpha * (255 / 255)) * 255)
+    // const green = Math.round((a * (g / 255) + alpha * (255 / 255)) * 255)
+    // const blue = Math.round((a * (b / 255) + alpha * (255 / 255)) * 255)
+    return [r, g, b, a]
   }
 
   // 上边
@@ -608,90 +619,84 @@ export class ImageColorUtils {
     return ((r << 16) | (g << 8) | b).toString(16)
   }
 
-  static rgb2hsv(rgb: number[]): number[] {
-    const R = rgb[0]
-    const G = rgb[1]
-    const B = rgb[2]
-    let v: any, diff: any
-    let rr, gg, bb, h, s
-    const rabs = R / 255
-    const gabs = G / 255
-    const babs = B / 255
-    ;(v = Math.max(rabs, gabs, babs)), (diff = v - Math.min(rabs, gabs, babs))
-    const diffc = (c: number) => (v - c) / 6 / diff + 1 / 2
-    const percentRoundFn = (num: number) => Math.round(num * 100) / 100
-    if (diff == 0) {
-      h = s = 0
-    } else {
-      s = diff / v
-      rr = diffc(rabs)
-      gg = diffc(gabs)
-      bb = diffc(babs)
+  static rgb2lab(rgb: number[]): number[] {
+    let r = rgb[0] / 255,
+      g = rgb[1] / 255,
+      b = rgb[2] / 255,
+      x,
+      y,
+      z
 
-      if (rabs === v) {
-        h = bb - gg
-      } else if (gabs === v) {
-        h = 1 / 3 + rr - bb
-      } else if (babs === v) {
-        h = 2 / 3 + gg - rr
-      }
-      if (h < 0) {
-        h += 1
-      } else if (h > 1) {
-        h -= 1
-      }
-    }
-    const H = Math.round(h * 360)
-    const S = percentRoundFn(s * 100)
-    const V = percentRoundFn(v * 100)
-    return [H, S, V]
+    r = r > 0.04045 ? Math.pow((r + 0.055) / 1.055, 2.4) : r / 12.92
+    g = g > 0.04045 ? Math.pow((g + 0.055) / 1.055, 2.4) : g / 12.92
+    b = b > 0.04045 ? Math.pow((b + 0.055) / 1.055, 2.4) : b / 12.92
+
+    x = (r * 0.4124 + g * 0.3576 + b * 0.1805) / 0.95047
+    y = (r * 0.2126 + g * 0.7152 + b * 0.0722) / 1.0
+    z = (r * 0.0193 + g * 0.1192 + b * 0.9505) / 1.08883
+
+    x = x > 0.008856 ? Math.pow(x, 1 / 3) : 7.787 * x + 16 / 116
+    y = y > 0.008856 ? Math.pow(y, 1 / 3) : 7.787 * y + 16 / 116
+    z = z > 0.008856 ? Math.pow(z, 1 / 3) : 7.787 * z + 16 / 116
+    return [116 * y - 16, 500 * (x - y), 200 * (y - z)]
   }
 
   // pickColors
-  pickColors(): string[] {
-    console.log(' ImageColorUtils.boundaryValue', ImageColorUtils.boundaryValue)
+  pickColors(): {
+    rgb: string[]
+    hex: string[]
+  } {
     const similarColorsMap: { [key: string]: number[][] } = {}
 
     const res: number[][] = []
 
-    // for (let x = 1; x < this.canvas.width; x += ImageColorUtils.ParticleSize) {
-    //   for (
-    //     let y = 1;
-    //     y < this.canvas.height;
-    //     y += ImageColorUtils.ParticleSize
-    //   ) {
-    //     const similarValues = Object.values(similarColorsMap)
+    let lastColor
 
-    //     const rgb = ImageColorUtils.getRGB(
-    //       this.imageData.data,
-    //       x,
-    //       y,
-    //       this.canvas.width
-    //     )
-    //     if (!similarValues.length) {
-    //       similarColorsMap[similarValues.length] = [rgb]
-    //     } else if (similarValues.length) {
-    //       // 是否已经被插入
-    //       let insert = false
-    //       for (const similarValue of similarValues) {
-    //         if (
-    //           ImageColorUtils.compare(
-    //             rgb,
-    //             similarValue[0],
-    //             ImageColorUtils.boundaryValue + 0,
-    //             'hsv'
-    //           )
-    //         ) {
-    //           // similarValue.push(rgb)
-    //           insert = true
-    //         }
-    //       }
-    //       if (!insert) {
-    //         similarColorsMap[similarValues.length] = [rgb]
-    //       }
-    //     }
-    //   }
-    // }
+    for (let x = 1; x < this.canvas.width; x += ImageColorUtils.ParticleSize) {
+      for (
+        let y = 1;
+        y < this.canvas.height;
+        y += ImageColorUtils.ParticleSize
+      ) {
+        const similarValues = Object.values(similarColorsMap)
+
+        const rgb = ImageColorUtils.getRGB(
+          this.imageData.data,
+          x,
+          y,
+          this.canvas.width
+        )
+        lastColor = rgb
+        if (rgb[3] === 0) {
+          continue
+        } else if (!similarValues.length) {
+          similarColorsMap[similarValues.length] = [rgb]
+        } else if (
+          similarValues.length &&
+          lastColor &&
+          ImageColorUtils.compare(rgb, lastColor, ImageColorUtils.boundaryValue)
+        ) {
+          // 是否已经被插入
+          let insert = false
+          for (const similarValue of similarValues) {
+            if (
+              ImageColorUtils.compare(
+                rgb,
+                similarValue[0],
+                ImageColorUtils.boundaryValue
+                // 'lab'
+              )
+            ) {
+              similarValue.push(rgb)
+              insert = true
+            }
+          }
+          if (!insert) {
+            similarColorsMap[similarValues.length] = [rgb]
+          }
+        }
+      }
+    }
 
     // console.log(
     //   Object.values(similarColorsMap).sort((x, y) =>
@@ -699,17 +704,23 @@ export class ImageColorUtils {
     //   )
     // )
     const values = Object.values(similarColorsMap)
-    console.log(similarColorsMap)
-
     values
-      .sort((x, y) => (x.length < y.length ? 1 : -1))
-      // .filter((item) => item.length > 100)
+      // .sort((x, y) => (x.length < y.length ? 1 : -1))
+      // .filter((item) => item.length > 200)
       .forEach((item) => {
-        // if(values.some(value=> ImageColorUtils.compare(value, item, 'hsv') ))
-        res.push(ImageColorUtils.getMost(item))
+        if (
+          !res.some((value) =>
+            ImageColorUtils.compare(value, ImageColorUtils.getMost(item))
+          )
+        ) {
+          res.push(ImageColorUtils.getMost(item))
+        }
       })
 
     // ImageColorUtils.getRGB(this.imageData.data, x, y, this.canvas.width)
-    return res.map((item) => item.join(','))
+    return {
+      rgb: res.map((item) => `rgb(${item.join(',')})`),
+      hex: res.map((item) => '#' + ImageColorUtils.rgb2hex(item)),
+    }
   }
 }

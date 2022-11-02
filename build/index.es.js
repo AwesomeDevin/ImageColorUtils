@@ -18,7 +18,7 @@ const majorityElement = function (nums) {
 };
 class ImageColorUtils {
     constructor(params) {
-        const { origin, mockMovePx = 30, boundaryValue = 10, ParticleSize = 2, width, height, onload, } = params || {};
+        const { origin, mockMovePx = 30, boundaryValue = 10, ParticleSize = 4, width, height, onload, } = params || {};
         if (!origin) {
             throw new Error('Origin is necessary');
         }
@@ -115,17 +115,20 @@ class ImageColorUtils {
         const val = boundaryValue;
         let distance;
         if (!type || type === 'rgb') {
-            distance = Math.sqrt((oldVal[0] - newVal[0]) * (oldVal[0] - newVal[0]) +
-                (oldVal[1] - newVal[1]) * (oldVal[1] - newVal[1]) +
-                (oldVal[2] - newVal[2]) * (oldVal[2] - newVal[2]));
+            const [R_1, G_1, B_1] = oldVal;
+            const [R_2, G_2, B_2] = newVal;
+            const rmean = (R_1 + R_2) / 2;
+            const R = R_1 - R_2;
+            const G = G_1 - G_2;
+            const B = B_1 - B_2;
+            distance = Math.sqrt((2 + rmean / 256) * Math.pow(R, 2) +
+                4 * Math.pow(G, 2) +
+                (2 + (255 - rmean) / 256) * Math.pow(B, 2));
         }
-        else if (type === 'hsv') {
-            const hsvOldVal = ImageColorUtils.rgb2hsv(oldVal);
-            const hsvnewVal = ImageColorUtils.rgb2hsv(newVal);
-            distance = Math.sqrt((hsvOldVal[0] - hsvnewVal[0]) * (hsvOldVal[0] - hsvnewVal[0]) +
-                (hsvOldVal[1] - hsvnewVal[1]) * (hsvOldVal[1] - hsvnewVal[1]) +
-                (hsvOldVal[2] - hsvnewVal[2]) * (hsvOldVal[2] - hsvnewVal[2]));
-            console.log(oldVal, newVal, distance, hsvOldVal, hsvnewVal);
+        else if (type === 'lab') {
+            ImageColorUtils.rgb2lab(oldVal);
+            ImageColorUtils.rgb2lab(newVal);
+            console.log(oldVal, newVal, distance);
         }
         if (distance >= val) {
             return true;
@@ -178,8 +181,13 @@ class ImageColorUtils {
     }
     static getRGB(data, x, y, width) {
         const index = (width * (y - 1) + x - 1) * 4;
-        const [r, g, b] = [data[index], data[index + 1], data[index + 2]];
-        return [r, g, b];
+        const [r, g, b, a] = [
+            data[index],
+            data[index + 1],
+            data[index + 2],
+            data[index + 3],
+        ];
+        return [r, g, b, a];
     }
     getArrayFromTopLine(leftTopPosition, rightBottomPosition) {
         const result = [];
@@ -362,59 +370,61 @@ class ImageColorUtils {
         const b = rgb[2];
         return ((r << 16) | (g << 8) | b).toString(16);
     }
-    static rgb2hsv(rgb) {
-        const R = rgb[0];
-        const G = rgb[1];
-        const B = rgb[2];
-        let v, diff;
-        let rr, gg, bb, h, s;
-        const rabs = R / 255;
-        const gabs = G / 255;
-        const babs = B / 255;
-        (v = Math.max(rabs, gabs, babs)), (diff = v - Math.min(rabs, gabs, babs));
-        const diffc = (c) => (v - c) / 6 / diff + 1 / 2;
-        const percentRoundFn = (num) => Math.round(num * 100) / 100;
-        if (diff == 0) {
-            h = s = 0;
-        }
-        else {
-            s = diff / v;
-            rr = diffc(rabs);
-            gg = diffc(gabs);
-            bb = diffc(babs);
-            if (rabs === v) {
-                h = bb - gg;
-            }
-            else if (gabs === v) {
-                h = 1 / 3 + rr - bb;
-            }
-            else if (babs === v) {
-                h = 2 / 3 + gg - rr;
-            }
-            if (h < 0) {
-                h += 1;
-            }
-            else if (h > 1) {
-                h -= 1;
-            }
-        }
-        const H = Math.round(h * 360);
-        const S = percentRoundFn(s * 100);
-        const V = percentRoundFn(v * 100);
-        return [H, S, V];
+    static rgb2lab(rgb) {
+        let r = rgb[0] / 255, g = rgb[1] / 255, b = rgb[2] / 255, x, y, z;
+        r = r > 0.04045 ? Math.pow((r + 0.055) / 1.055, 2.4) : r / 12.92;
+        g = g > 0.04045 ? Math.pow((g + 0.055) / 1.055, 2.4) : g / 12.92;
+        b = b > 0.04045 ? Math.pow((b + 0.055) / 1.055, 2.4) : b / 12.92;
+        x = (r * 0.4124 + g * 0.3576 + b * 0.1805) / 0.95047;
+        y = (r * 0.2126 + g * 0.7152 + b * 0.0722) / 1.0;
+        z = (r * 0.0193 + g * 0.1192 + b * 0.9505) / 1.08883;
+        x = x > 0.008856 ? Math.pow(x, 1 / 3) : 7.787 * x + 16 / 116;
+        y = y > 0.008856 ? Math.pow(y, 1 / 3) : 7.787 * y + 16 / 116;
+        z = z > 0.008856 ? Math.pow(z, 1 / 3) : 7.787 * z + 16 / 116;
+        return [116 * y - 16, 500 * (x - y), 200 * (y - z)];
     }
     pickColors() {
-        console.log(' ImageColorUtils.boundaryValue', ImageColorUtils.boundaryValue);
         const similarColorsMap = {};
         const res = [];
+        let lastColor;
+        for (let x = 1; x < this.canvas.width; x += ImageColorUtils.ParticleSize) {
+            for (let y = 1; y < this.canvas.height; y += ImageColorUtils.ParticleSize) {
+                const similarValues = Object.values(similarColorsMap);
+                const rgb = ImageColorUtils.getRGB(this.imageData.data, x, y, this.canvas.width);
+                lastColor = rgb;
+                if (rgb[3] === 0) {
+                    continue;
+                }
+                else if (!similarValues.length) {
+                    similarColorsMap[similarValues.length] = [rgb];
+                }
+                else if (similarValues.length &&
+                    lastColor &&
+                    ImageColorUtils.compare(rgb, lastColor, ImageColorUtils.boundaryValue)) {
+                    let insert = false;
+                    for (const similarValue of similarValues) {
+                        if (ImageColorUtils.compare(rgb, similarValue[0], ImageColorUtils.boundaryValue)) {
+                            similarValue.push(rgb);
+                            insert = true;
+                        }
+                    }
+                    if (!insert) {
+                        similarColorsMap[similarValues.length] = [rgb];
+                    }
+                }
+            }
+        }
         const values = Object.values(similarColorsMap);
-        console.log(similarColorsMap);
         values
-            .sort((x, y) => (x.length < y.length ? 1 : -1))
             .forEach((item) => {
-            res.push(ImageColorUtils.getMost(item));
+            if (!res.some((value) => ImageColorUtils.compare(value, ImageColorUtils.getMost(item)))) {
+                res.push(ImageColorUtils.getMost(item));
+            }
         });
-        return res.map((item) => item.join(','));
+        return {
+            rgb: res.map((item) => `rgb(${item.join(',')})`),
+            hex: res.map((item) => '#' + ImageColorUtils.rgb2hex(item)),
+        };
     }
 }
 

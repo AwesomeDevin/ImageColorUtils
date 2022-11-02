@@ -46,8 +46,11 @@
       flex-wrap: wrap;
     }
     .color{
-      width: 50px;
+      width: 140px;
       height: 50px;
+      color: #ccc;
+      line-height: 120px;    
+      margin-bottom: 20px;  
     }
   </style>
 </head>
@@ -102,7 +105,7 @@
       <input type='range' id='boundary' name='boundaryValue' value="10"  min="10" max="100" step="2"/>
       <span id="boundaryText">10</span>
     </div>
-    <div class="flex">
+    <div class="flex" style="display: none">
       颜色提取阈值（阈值越高，相似条件越低）：
       <input type='range' id='boundary2' name='boundaryValue2' value="0"  min="0" max="100" step="2"/>
       <span id="boundaryText2">0</span>
@@ -229,15 +232,16 @@
           origin: this.img,
           width:this.canvas.width,
           height: this.canvas.height,
-          boundaryValue: this.boundaryValue2,
+          boundaryValue: 100,
           onload: ()=>{
             this.colors.innerHTML=''
             const res = colorUtils.pickColors()
-            console.log( ImageColorUtils.compare([254, 255, 255],  [255, 255, 255], this.boundaryValue2, 'hsv'),'hsv')
-            for(const color of res){
+            console.log( ImageColorUtils.compare([144, 173, 255],  [144, 173, 254], 50), res)
+            for(const color of res.rgb){
               const dom = document.createElement('div')
-              dom.className='color'
-              dom.style.background=`rgb(${color})`
+              dom.className = 'color'
+              dom.style.background = color
+              dom.innerHTML = color
               this.colors.appendChild(dom)
             }
           }
