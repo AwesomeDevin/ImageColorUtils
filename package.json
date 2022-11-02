@@ -6,7 +6,8 @@
   "module": "./build/index.es.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npx rollup -c"
+    "build": "npx rollup -c ",
+    "dev": "npx rollup -c -w"
   },
   "author": "AwesomeDevin <awesomedevin.deng@gmail.com>",
   "license": "MIT",
@@ -30,7 +31,8 @@
     "@babel/traverse": "^7.15.4",
     "@babel/types": "^7.15.4",
     "promises-aplus-tests": "^2.1.2",
-    "rollup-plugin-live-server": "^1.0.3"
+    "rollup-plugin-live-server": "^1.0.3",
+    "rollup-plugin-livereload": "^2.0.5"
   },
   "repository": "https://github.com/o2team/image-color-utils",
   "devDependencies": {

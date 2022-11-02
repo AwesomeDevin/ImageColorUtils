@@ -784,6 +784,21 @@ chokidar@^3.4.0:
   optionalDependencies:
     fsevents "~2.3.2"
 
+chokidar@^3.5.0:
+  version "3.5.3"
+  resolved "http://registry.m.jd.com/chokidar/download/chokidar-3.5.3.tgz#1cf37c8707b932bd1af1ae22c0432e2acd1903bd"
+  integrity sha1-HPN8hwe5Mr0a8a4iwEMuKs0ZA70=
+  dependencies:
+    anymatch "~3.1.2"
+    braces "~3.0.2"
+    glob-parent "~5.1.2"
+    is-binary-path "~2.1.0"
+    is-glob "~4.0.1"
+    normalize-path "~3.0.0"
+    readdirp "~3.6.0"
+  optionalDependencies:
+    fsevents "~2.3.2"
+
 class-utils@^0.3.5:
   version "0.3.6"
   resolved "http://registry.m.jd.com/class-utils/download/class-utils-0.3.6.tgz#f93369ae8b9a7ce02fd41faad0ca83033190c463"
@@ -2068,6 +2083,21 @@ live-server@^1.2.1:
     send latest
     serve-index "^1.9.1"
 
+livereload-js@^3.3.1:
+  version "3.4.1"
+  resolved "http://registry.m.jd.com/livereload-js/download/livereload-js-3.4.1.tgz#ba90fbc708ed1b9a024bb89c4ee12c96ea03d66f"
+  integrity sha1-upD7xwjtG5oCS7icTuEsluoD1m8=
+
+livereload@^0.9.1:
+  version "0.9.3"
+  resolved "http://registry.m.jd.com/livereload/download/livereload-0.9.3.tgz#a714816375ed52471408bede8b49b2ee6a0c55b1"
+  integrity sha1-pxSBY3XtUkcUCL7ei0my7moMVbE=
+  dependencies:
+    chokidar "^3.5.0"
+    livereload-js "^3.3.1"
+    opts ">= 1.2.0"
+    ws "^7.4.3"
+
 locate-path@^5.0.0:
   version "5.0.0"
   resolved "http://registry.m.jd.com/locate-path/download/locate-path-5.0.0.tgz#1afba396afd676a6d42504d0a67a3a7eb9f62aa0"
@@ -2439,6 +2469,11 @@ optionator@^0.9.1:
     type-check "^0.4.0"
     word-wrap "^1.2.3"
 
+"opts@>= 1.2.0":
+  version "2.0.2"
+  resolved "http://registry.m.jd.com/opts/download/opts-2.0.2.tgz#a17e189fbbfee171da559edd8a42423bc5993ce1"
+  integrity sha1-oX4Yn7v+4XHaVZ7dikJCO8WZPOE=
+
 p-limit@^2.2.0:
   version "2.3.0"
   resolved "http://registry.m.jd.com/p-limit/download/p-limit-2.3.0.tgz#3dd33c647a214fdfffd835933eb086da0dc21db1"
@@ -2702,6 +2737,13 @@ rollup-plugin-live-server@^1.0.3:
   integrity sha1-Qr0Tk3NjFDJe9L6TQNI+X8SJsRs=
   dependencies:
     live-server "^1.2.1"
+
+rollup-plugin-livereload@^2.0.5:
+  version "2.0.5"
+  resolved "http://registry.m.jd.com/rollup-plugin-livereload/download/rollup-plugin-livereload-2.0.5.tgz#4747fa292a2cceb0c972c573d71b3d66b4252b37"
+  integrity sha1-R0f6KSoszrDJcsVz1xs9ZrQlKzc=
+  dependencies:
+    livereload "^0.9.1"
 
 rollup-plugin-polyfill@^3.0.0:
   version "3.0.0"
@@ -3350,6 +3392,11 @@ wrappy@1:
   version "1.0.2"
   resolved "http://registry.m.jd.com/wrappy/download/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
   integrity sha1-tSQ9jz7BqjXxNkYFvA0QNuMKtp8=
+
+ws@^7.4.3:
+  version "7.5.9"
+  resolved "http://registry.m.jd.com/ws/download/ws-7.5.9.tgz#54fa7db29f4c7cec68b1ddd3a89de099942bb591"
+  integrity sha1-VPp9sp9MfOxosd3TqJ3gmZQrtZE=
 
 yallist@^4.0.0:
   version "4.0.0"
