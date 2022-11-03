@@ -1,10 +1,8 @@
 # image-color-utils
 
 ## DESC
-基于欧式距离公式及图片色值量化算法提供`取色`、`色值相似度对比`、`色彩边界值计算`等能力。  
+基于欧式距离公式及图片色值量化算法提供`取色`、`提取图片颜色及百分比`、`色值相似度对比`、`色彩边界值计算`等能力。  
 
-待开发
-- 提取图片颜色及百分比
 ### [demo](http://175.24.232.69:8080/ImageColorUtils/index.html)
 ### [codesandbox](https://codesandbox.io/s/image-color-utils-ghrvb)
 ![](https://raw.githubusercontent.com/o2team/image-color-utils/main/static/demo4.gif)
@@ -131,7 +129,7 @@ Desc  | Type
 ```javascript
 import { ImageColorUtils } from 'image-color-utils'
 
-const res = ImageColorUtils.compare(color1, color2, boundaryValue)
+const res = ImageColorUtils.compare(color1, color2, boundaryValue, type)
 ```
 ##### Arguments
 Name  | Desc  | Type | Default | required
@@ -139,7 +137,7 @@ Name  | Desc  | Type | Default | required
 color1 | rgb 色值1 | number[] | - | true
 color2 | rgb 色值2 | number[] | - | true
 boundaryValue | 色彩边界阈值（作用于色值相似度对比, 阈值越高，相似条件越高） | number | 10 | false
-
+type | 颜色模型 | 'rgb' or 'lab' | 'rgb' | true
 ##### Returns
 Desc  | Type 
 -------- | -------- 
