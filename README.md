@@ -42,7 +42,8 @@ const params = {
   width: canvas.width,
   height: canvas.height,
   boundaryValue,
-  mockMovePx
+  mockMovePx,
+  onload,
 }
 const imageColorUtils = new ImageColorUtils(params)
 ```
@@ -54,6 +55,7 @@ width | 画板宽度 | number | - | false (不传参将根据图片宽高自适�
 height | 画板高度 | number | - | false (不传参将根据图片宽高自适应，origin 为 ImageBitmap / HTMLImageElemen，必填)
 mockMovePx |  边界扫描距离（最大边界扫描距离, 扫描方向由内向外） | number | 30 | false
 boundaryValue | 色彩边界阈值（作用于色值相似度对比, 阈值越高，相似条件越高） | number | 10 | false
+onload | 加载完成 | ()=>void | - | false
 ##### Returns
 Desc  | Type 
 -------- | -------- 

@@ -452,7 +452,6 @@ class ImageColorUtils {
                 res.push(ImageColorUtils.getMedian(item));
             }
         });
-        console.log('similarColorsMap', this.imageData.data.length, this.canvas.width, this.canvas.height);
         return {
             rgb: res.map((item) => `rgba(${item.join(',')})`),
             hex: res.map((item) => rgb2hex(item)),
