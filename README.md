@@ -27,7 +27,8 @@ const { ImageColorUtils } = require('image-color-utils')
 
 ## API
 - [ImageColorUtils](#-imagecolorutils)
-- [pickColor](#-pickcolor---提取色值)
+- [pickColor](#-pickcolor---提取单个色值)
+- [pickColors](#-pickcolors---提取图片色值)
 - [adjust](#-adjust---色彩边界值计算)
 - [compare](#-compare---色值相似度对比)
 - [hex2rgb](#-hex2rgb---hex色值转rgb色值)
@@ -60,7 +61,7 @@ Desc  | Type
 -------- | -------- 
 ImageColorUtils实例 | Object
 
-### \# pickColor - 提取色值 
+### \# pickColor - 提取单个色值 
 ```javascript
 import { ImageColorUtils } from 'image-color-utils'
 
@@ -82,6 +83,25 @@ y | 目标点距离画布左上角y坐标 | number | - | true
 Desc  | Type 
 -------- | -------- 
 目标点 rgb 色值 | number[] 
+
+### \# pickColors - 提取图片色值
+```javascript
+import { ImageColorUtils } from 'image-color-utils'
+
+
+const imageColorUtils = new ImageColorUtils({
+  origin: img,
+  width: canvas.width,
+  height: canvas.height
+})
+const res = imageColorUtils.pickColors()
+```
+##### Returns
+##### Returns
+Desc  | Type 
+-------- | -------- 
+图片色值 | {rgb: string[], hex: string[]  }
+
 
 ### \# adjust - 色彩边界值计算
 ```javascript
@@ -127,9 +147,9 @@ Desc  | Type
 
 ### \# hex2rgb - HEX色值转RGB色值
 ```javascript
-import { ImageColorUtils } from 'image-color-utils'
+import { hex2rgb } from 'image-color-utils'
 
-const rgb = ImageColorUtils.hex2rgb(hex)
+const rgb = hex2rgb(hex)
 ```
 ##### Arguments
 Name  | Desc  | Type | Default | required
@@ -143,9 +163,9 @@ RGB色值 | number[]
 
 ### \# rgb2hex - RGB色值转HEX色值
 ```javascript
-import { ImageColorUtils } from 'image-color-utils'
+import { rgb2hex } from 'image-color-utils'
 
-const hex = ImageColorUtils.rgb2hex(rgb)
+const hex = rgb2hex(rgb)
 ```
 ##### Arguments
 Name  | Desc  | Type | Default | required

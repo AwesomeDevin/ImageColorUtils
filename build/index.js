@@ -4,6 +4,42 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
+const hexColorMatch = /^#?(?:([a-f0-9])([a-f0-9])([a-f0-9])([a-f0-9])?|([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})?)$/i;
+function rgb2value(rgb) {
+    const [r, g, b] = rgb;
+    const value = Math.max(r, g, b);
+    return value;
+}
+function rgb2whiteness(rgb) {
+    const [r, g, b] = rgb;
+    const whiteness = Math.min(r, g, b);
+    return whiteness;
+}
+function rgb2hue(rgb, fallbackhue = 0) {
+    const [r, g, b] = rgb;
+    const value = rgb2value(rgb);
+    const whiteness = rgb2whiteness(rgb);
+    const delta = value - whiteness;
+    if (delta) {
+        const segment = value === r
+            ? (g - b) / delta
+            : value === g
+                ? (b - r) / delta
+                : (r - g) / delta;
+        const shift = value === r
+            ? segment < 0
+                ? 360 / 60
+                : 0 / 60
+            : value === g
+                ? 120 / 60
+                : 240 / 60;
+        const hue = (segment + shift) * 60;
+        return hue;
+    }
+    else {
+        return fallbackhue;
+    }
+}
 function majorityElement(nums) {
     let majority_element = null;
     let count = 0;
@@ -19,6 +55,21 @@ function majorityElement(nums) {
         }
     }
     return majority_element;
+}
+function hex2rgb(hex) {
+    const [, r, g, b, a, rr, gg, bb, aa] = hex.match(hexColorMatch) || [];
+    if (rr !== undefined || r !== undefined) {
+        const red = rr !== undefined ? parseInt(rr, 16) : parseInt(r + r, 16);
+        const green = gg !== undefined ? parseInt(gg, 16) : parseInt(g + g, 16);
+        const blue = bb !== undefined ? parseInt(bb, 16) : parseInt(b + b, 16);
+        const alpha = aa !== undefined
+            ? parseInt(aa, 16)
+            : a !== undefined
+                ? parseInt(a + a, 16)
+                : 255;
+        return [red, green, blue, alpha].map((c) => (c * 100) / 255);
+    }
+    return undefined;
 }
 function rgb2hex(rgb) {
     const [R, G, B, A] = rgb;
@@ -400,3 +451,10 @@ class ImageColorUtils {
 }
 
 exports.ImageColorUtils = ImageColorUtils;
+exports.hex2rgb = hex2rgb;
+exports.majorityElement = majorityElement;
+exports.rgb2hex = rgb2hex;
+exports.rgb2hue = rgb2hue;
+exports.rgb2lab = rgb2lab;
+exports.rgb2value = rgb2value;
+exports.rgb2whiteness = rgb2whiteness;

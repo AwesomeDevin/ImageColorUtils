@@ -1,4 +1,4 @@
-import { rgb2lab, majorityElement, rgb2hex, rgb2hsl } from './utils'
+import { rgb2lab, majorityElement, rgb2hex } from './utils'
 interface LineArray {
   left: Array<[number, number]>
   top: Array<[number, number]>

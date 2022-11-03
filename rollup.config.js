@@ -16,14 +16,14 @@ const plugins = [
   }),
   commonjs(),
   livereload(),
-  polyfill(['./imageColorUtils.ts']),
+  polyfill(['./index.ts']),
   serve({
     open: true,
   }),
 ]
 
 export default {
-  input: './src/imageColorUtils.ts',
+  input: './src/index.ts',
   output: [
     {
       file: './build/index.es.js',
