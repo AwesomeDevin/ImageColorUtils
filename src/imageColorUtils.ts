@@ -81,7 +81,7 @@ export class ImageColorUtils {
       origin,
       mockMovePx = 30,
       boundaryValue = 10,
-      ParticleSize = 8,
+      ParticleSize = 10,
       width,
       height,
       onload,
@@ -280,6 +280,7 @@ export class ImageColorUtils {
     const total0 = data.map((item) => item[0]).sort((x, y) => (x > y ? 1 : -1))
     const total1 = data.map((item) => item[1]).sort((x, y) => (x > y ? 1 : -1))
     const total2 = data.map((item) => item[2]).sort((x, y) => (x > y ? 1 : -1))
+    const total3 = data.map((item) => item[3]).sort((x, y) => (x > y ? 1 : -1))
 
     const length = data.length
     if (length % 2 === 0) {
@@ -287,14 +288,16 @@ export class ImageColorUtils {
       const r = (total0[length / 2] + total0[length / 2 - 1]) / 2
       const g = (total1[length / 2] + total1[length / 2 - 1]) / 2
       const b = (total2[length / 2] + total2[length / 2 - 1]) / 2
+      const a = (total3[length / 2] + total3[length / 2 - 1]) / 2
 
-      return [r, g, b]
+      return [r, g, b, a]
     }
     // 奇数
     const r = total0[(length + 1) / 2]
     const g = total1[(length + 1) / 2]
     const b = total2[(length + 1) / 2]
-    return [r, g, b]
+    const a = total3[(length + 1) / 2]
+    return [r, g, b, a]
   }
 
   // 返回某一点的rgb值
@@ -536,7 +539,7 @@ export class ImageColorUtils {
     const similarColorsMap: { [key: string]: number[][] } = {}
 
     const res: number[][] = []
-    const boundaryValue = 25
+    const boundaryValue = 20
     const type = 'lab'
 
     let lastColor
@@ -585,6 +588,12 @@ export class ImageColorUtils {
                 similarValue[Math.floor(similarValue.length / 2)],
                 boundaryValue,
                 type
+              ) &&
+              ImageColorUtils.compare(
+                rgba,
+                similarValue[Math.floor(similarValue.length - 1)],
+                boundaryValue,
+                type
               )
             ) {
               similarValue.push(rgba)
@@ -601,7 +610,15 @@ export class ImageColorUtils {
     const values = Object.values(similarColorsMap)
     values
       .sort((x, y) => (x.length < y.length ? 1 : -1))
-      .filter((item) => item.length > 5)
+      .filter(
+        (item) =>
+          item.length >
+          Math.floor(
+            (this.imageData.data.length /
+              (this.canvas.width * this.canvas.height)) *
+              4
+          )
+      )
       .forEach((item) => {
         if (
           !res.some((value) =>
