@@ -81,7 +81,7 @@ export class ImageColorUtils {
       origin,
       mockMovePx = 30,
       boundaryValue = 10,
-      ParticleSize = 4,
+      ParticleSize = 8,
       width,
       height,
       onload,
@@ -537,6 +537,7 @@ export class ImageColorUtils {
 
     const res: number[][] = []
     const boundaryValue = 25
+    const type = 'lab'
 
     let lastColor
 
@@ -565,7 +566,8 @@ export class ImageColorUtils {
           ImageColorUtils.compare(
             rgba,
             lastColor,
-            ImageColorUtils.boundaryValue
+            ImageColorUtils.boundaryValue,
+            type
           )
         ) {
           // 是否已经被插入
@@ -574,15 +576,15 @@ export class ImageColorUtils {
             if (
               ImageColorUtils.compare(
                 rgba,
-                similarValue[0],
-                boundaryValue,
-                'lab'
-              ) ||
-              ImageColorUtils.compare(
-                rgba,
                 similarValue[similarValue.length - 1],
                 boundaryValue,
-                'lab'
+                type
+              ) &&
+              ImageColorUtils.compare(
+                rgba,
+                similarValue[Math.floor(similarValue.length / 2)],
+                boundaryValue,
+                type
               )
             ) {
               similarValue.push(rgba)
@@ -599,18 +601,19 @@ export class ImageColorUtils {
     const values = Object.values(similarColorsMap)
     values
       .sort((x, y) => (x.length < y.length ? 1 : -1))
+      .filter((item) => item.length > 5)
       .forEach((item) => {
         if (
           !res.some((value) =>
             ImageColorUtils.compare(
               value,
-              ImageColorUtils.getMost(item),
+              ImageColorUtils.getMedian(item),
               boundaryValue,
-              'lab'
+              type
             )
           )
         ) {
-          res.push(ImageColorUtils.getMost(item))
+          res.push(ImageColorUtils.getMedian(item))
         }
       })
 

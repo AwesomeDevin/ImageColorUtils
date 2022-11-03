@@ -98,7 +98,7 @@ function rgb2lab(rgb) {
 
 class ImageColorUtils {
     constructor(params) {
-        const { origin, mockMovePx = 30, boundaryValue = 10, ParticleSize = 4, width, height, onload, } = params || {};
+        const { origin, mockMovePx = 30, boundaryValue = 10, ParticleSize = 8, width, height, onload, } = params || {};
         if (!origin) {
             throw new Error('Origin is necessary');
         }
@@ -402,6 +402,7 @@ class ImageColorUtils {
         const similarColorsMap = {};
         const res = [];
         const boundaryValue = 25;
+        const type = 'lab';
         let lastColor;
         for (let x = 1; x < this.canvas.width; x += ImageColorUtils.ParticleSize) {
             for (let y = 1; y < this.canvas.height; y += ImageColorUtils.ParticleSize) {
@@ -416,11 +417,11 @@ class ImageColorUtils {
                 }
                 else if (similarValues.length &&
                     lastColor &&
-                    ImageColorUtils.compare(rgba, lastColor, ImageColorUtils.boundaryValue)) {
+                    ImageColorUtils.compare(rgba, lastColor, ImageColorUtils.boundaryValue, type)) {
                     let insert = false;
                     for (const similarValue of similarValues) {
-                        if (ImageColorUtils.compare(rgba, similarValue[0], boundaryValue, 'lab') ||
-                            ImageColorUtils.compare(rgba, similarValue[similarValue.length - 1], boundaryValue, 'lab')) {
+                        if (ImageColorUtils.compare(rgba, similarValue[similarValue.length - 1], boundaryValue, type) &&
+                            ImageColorUtils.compare(rgba, similarValue[Math.floor(similarValue.length / 2)], boundaryValue, type)) {
                             similarValue.push(rgba);
                             insert = true;
                         }
@@ -434,9 +435,10 @@ class ImageColorUtils {
         const values = Object.values(similarColorsMap);
         values
             .sort((x, y) => (x.length < y.length ? 1 : -1))
+            .filter((item) => item.length > 5)
             .forEach((item) => {
-            if (!res.some((value) => ImageColorUtils.compare(value, ImageColorUtils.getMost(item), boundaryValue, 'lab'))) {
-                res.push(ImageColorUtils.getMost(item));
+            if (!res.some((value) => ImageColorUtils.compare(value, ImageColorUtils.getMedian(item), boundaryValue, type))) {
+                res.push(ImageColorUtils.getMedian(item));
             }
         });
         return {
