@@ -1,3 +1,4 @@
+import { rgb2lab, majorityElement, rgb2hex, rgb2hsl } from './utils'
 interface LineArray {
   left: Array<[number, number]>
   top: Array<[number, number]>
@@ -52,23 +53,6 @@ interface PickLineColorParams {
   leftTopPosition: number[]
   rightBottomPosition: number[]
   scopes?: string[]
-  valueType?: string
-}
-
-const majorityElement = function (nums: number[]) {
-  let majority_element = null
-  let count = 0
-  for (const num of nums) {
-    if (count == 0) {
-      majority_element = num
-    }
-    if (num != majority_element) {
-      count--
-    } else {
-      count++
-    }
-  }
-  return majority_element
 }
 
 /**
@@ -180,10 +164,8 @@ export class ImageColorUtils {
     }
   }
 
-  public pickColor(x: number, y: number, type = 'rgb'): number[] {
-    return type === 'rgb'
-      ? ImageColorUtils.getRGB(this.imageData.data, x, y, this.canvas.width)
-      : ImageColorUtils.getHSL(this.imageData.data, x, y, this.canvas.width)
+  public pickColor(x: number, y: number): number[] {
+    return ImageColorUtils.getRGB(this.imageData.data, x, y, this.canvas.width)
   }
 
   // 获取四条边的中位数色值
@@ -191,7 +173,6 @@ export class ImageColorUtils {
     leftTopPosition,
     rightBottomPosition,
     scopes,
-    valueType = 'rgb',
   }: PickLineColorParams): MediaValue {
     const data = this.imageData.data
     const media: MediaValue = {}
@@ -214,8 +195,7 @@ export class ImageColorUtils {
         const [r, g, b] = ImageColorUtils.getRGB(data, x, y, this.canvas.width)
         rgbArray.push([r, g, b])
       }
-      // media[key] = ImageColorUtils.getAverage(rgbArray, valueType)
-      media[key] = ImageColorUtils.getMedian(rgbArray, valueType)
+      media[key] = ImageColorUtils.getMedian(rgbArray)
     }
     return media
   }
@@ -242,12 +222,16 @@ export class ImageColorUtils {
           (2 + (255 - rmean) / 256) * B ** 2
       )
     } else if (type === 'lab') {
-      const labOldVal = ImageColorUtils.rgb2lab(oldVal)
-      const labnewVal = ImageColorUtils.rgb2lab(newVal)
+      const labOldVal = rgb2lab(oldVal)
+      const labnewVal = rgb2lab(newVal)
       const [L_1, A_1, B_1] = labOldVal
       const [L_2, A_2, B_2] = labnewVal
-      distance = Math.abs(
-        ((L_1 - L_2) * 2 + (A_1 - A_2) * 2 + (B_1 - B_2) * 2) / 2
+      distance = Math.sqrt(
+        Math.abs(
+          Math.pow(L_1 - L_2, 2) +
+            Math.pow(A_1 - A_2, 2) +
+            Math.pow(B_1 - B_2, 2)
+        )
       )
     }
     // const diff = (distance / Math.sqrt(360 * 360 + 100 * 100 + 100 * 100)) * 100
@@ -272,22 +256,13 @@ export class ImageColorUtils {
   }
 
   // 求平均值
-  private static getAverage(
-    data: Array<number[]>,
-    valueType: string
-  ): number[] {
+  private static getAverage(data: Array<number[]>): number[] {
     const total = data.reduce((x, y) => [x[0] + y[0], x[1] + y[1], x[2] + y[2]])
-    return valueType === 'rgb'
-      ? [
-          Math.round(total[0] / data.length),
-          Math.round(total[1] / data.length),
-          Math.round(total[2] / data.length),
-        ] // 返回rgb值
-      : ImageColorUtils.RGB2HSL(
-          Math.round(total[0] / data.length),
-          Math.round(total[1] / data.length),
-          Math.round(total[2] / data.length)
-        ) // 返回hsl值
+    return [
+      Math.round(total[0] / data.length),
+      Math.round(total[1] / data.length),
+      Math.round(total[2] / data.length),
+    ] // 返回rgb值
   }
 
   // 求众数
@@ -295,12 +270,13 @@ export class ImageColorUtils {
     const r = majorityElement(data.map((item) => item[0]))
     const g = majorityElement(data.map((item) => item[1]))
     const b = majorityElement(data.map((item) => item[2]))
+    const a = majorityElement(data.map((item) => item[3]))
 
-    return [r, g, b]
+    return [r, g, b, a]
   }
 
   // 求中位数
-  private static getMedian(data: Array<number[]>, valueType: string): number[] {
+  private static getMedian(data: Array<number[]>): number[] {
     const total0 = data.map((item) => item[0]).sort((x, y) => (x > y ? 1 : -1))
     const total1 = data.map((item) => item[1]).sort((x, y) => (x > y ? 1 : -1))
     const total2 = data.map((item) => item[2]).sort((x, y) => (x > y ? 1 : -1))
@@ -312,29 +288,13 @@ export class ImageColorUtils {
       const g = (total1[length / 2] + total1[length / 2 - 1]) / 2
       const b = (total2[length / 2] + total2[length / 2 - 1]) / 2
 
-      return valueType === 'rgb'
-        ? [r, g, b] // 返回rgb值
-        : ImageColorUtils.RGB2HSL(r, g, b) // 返回hsl值
+      return [r, g, b]
     }
     // 奇数
     const r = total0[(length + 1) / 2]
     const g = total1[(length + 1) / 2]
     const b = total2[(length + 1) / 2]
-    return valueType === 'rgb'
-      ? [r, g, b] // 返回rgb值
-      : ImageColorUtils.RGB2HSL(r, g, b) // 返回hsl值
-  }
-
-  // 返回某一点的hsl值
-  private static getHSL(
-    data: Uint8ClampedArray,
-    x: number,
-    y: number,
-    width: number
-  ): number[] {
-    const index = (width * (y - 1) + x - 1) * 4
-    const [r, g, b] = [data[index], data[index + 1], data[index + 2]]
-    return ImageColorUtils.RGB2HSL(r, g, b)
+    return [r, g, b]
   }
 
   // 返回某一点的rgb值
@@ -351,11 +311,7 @@ export class ImageColorUtils {
       data[index + 2],
       data[index + 3],
     ]
-    // const alpha = 1 - a
-    // const red = Math.round((a * (r / 255) + alpha * (255 / 255)) * 255)
-    // const green = Math.round((a * (g / 255) + alpha * (255 / 255)) * 255)
-    // const blue = Math.round((a * (b / 255) + alpha * (255 / 255)) * 255)
-    return [r, g, b, a]
+    return [r, g, b, Math.round(a / 255)]
   }
 
   // 上边
@@ -572,78 +528,6 @@ export class ImageColorUtils {
     }
   }
 
-  // rgb转hsl
-  static RGB2HSL(r: number, g: number, b: number): number[] {
-    r /= 255
-    g /= 255
-    b /= 255
-    const max = Math.max(r, g, b)
-    const min = Math.min(r, g, b)
-    let h
-    let s
-    const l = (max + min) / 2
-
-    if (max === min) {
-      h = 0
-      s = 0
-    } else {
-      const d = max - min
-      s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
-      switch (max) {
-        case r:
-          h = (g - b) / d + (g < b ? 6 : 0)
-          break
-        case g:
-          h = (b - r) / d + 2
-          break
-        case b:
-          h = (r - g) / d + 4
-          break
-      }
-      h /= 6
-    }
-    return [Math.floor(h * 100), Math.round(s * 100), Math.round(l * 100)]
-  }
-
-  // hex转rgb
-  static hex2rgb(hex: string): number[] {
-    return [
-      parseInt('0x' + hex.slice(1, 3)),
-      parseInt('0x' + hex.slice(3, 5)),
-      parseInt('0x' + hex.slice(5, 7)),
-    ]
-  }
-
-  // RGB2HEX
-  static rgb2hex(rgb: number[]): string {
-    const r = rgb[0]
-    const g = rgb[1]
-    const b = rgb[2]
-    return ((r << 16) | (g << 8) | b).toString(16)
-  }
-
-  static rgb2lab(rgb: number[]): number[] {
-    let r = rgb[0] / 255,
-      g = rgb[1] / 255,
-      b = rgb[2] / 255,
-      x,
-      y,
-      z
-
-    r = r > 0.04045 ? Math.pow((r + 0.055) / 1.055, 2.4) : r / 12.92
-    g = g > 0.04045 ? Math.pow((g + 0.055) / 1.055, 2.4) : g / 12.92
-    b = b > 0.04045 ? Math.pow((b + 0.055) / 1.055, 2.4) : b / 12.92
-
-    x = (r * 0.4124 + g * 0.3576 + b * 0.1805) / 0.95047
-    y = (r * 0.2126 + g * 0.7152 + b * 0.0722) / 1.0
-    z = (r * 0.0193 + g * 0.1192 + b * 0.9505) / 1.08883
-
-    x = x > 0.008856 ? Math.pow(x, 1 / 3) : 7.787 * x + 16 / 116
-    y = y > 0.008856 ? Math.pow(y, 1 / 3) : 7.787 * y + 16 / 116
-    z = z > 0.008856 ? Math.pow(z, 1 / 3) : 7.787 * z + 16 / 116
-    return [116 * y - 16, 500 * (x - y), 200 * (y - z)]
-  }
-
   // pickColors
   pickColors(): {
     rgb: string[]
@@ -652,7 +536,7 @@ export class ImageColorUtils {
     const similarColorsMap: { [key: string]: number[][] } = {}
 
     const res: number[][] = []
-    const boundaryValue = 7
+    const boundaryValue = 25
 
     let lastColor
 
@@ -664,45 +548,49 @@ export class ImageColorUtils {
       ) {
         const similarValues = Object.values(similarColorsMap)
 
-        const rgb = ImageColorUtils.getRGB(
+        const rgba = ImageColorUtils.getRGB(
           this.imageData.data,
           x,
           y,
           this.canvas.width
         )
-        lastColor = rgb
-        if (rgb[3] === 0) {
+        lastColor = rgba
+        if (rgba[3] === 0) {
           continue
         } else if (!similarValues.length) {
-          similarColorsMap[similarValues.length] = [rgb]
+          similarColorsMap[similarValues.length] = [rgba]
         } else if (
           similarValues.length &&
           lastColor &&
-          ImageColorUtils.compare(rgb, lastColor, ImageColorUtils.boundaryValue)
+          ImageColorUtils.compare(
+            rgba,
+            lastColor,
+            ImageColorUtils.boundaryValue
+          )
         ) {
           // 是否已经被插入
           let insert = false
           for (const similarValue of similarValues) {
             if (
               ImageColorUtils.compare(
-                rgb,
+                rgba,
                 similarValue[0],
                 boundaryValue,
                 'lab'
               ) ||
               ImageColorUtils.compare(
-                rgb,
+                rgba,
                 similarValue[similarValue.length - 1],
                 boundaryValue,
                 'lab'
               )
             ) {
-              similarValue.push(rgb)
+              similarValue.push(rgba)
               insert = true
             }
           }
           if (!insert) {
-            similarColorsMap[similarValues.length] = [rgb]
+            similarColorsMap[similarValues.length] = [rgba]
           }
         }
       }
@@ -711,7 +599,6 @@ export class ImageColorUtils {
     const values = Object.values(similarColorsMap)
     values
       .sort((x, y) => (x.length < y.length ? 1 : -1))
-      .filter((item) => item.length > 100)
       .forEach((item) => {
         if (
           !res.some((value) =>
@@ -728,8 +615,8 @@ export class ImageColorUtils {
       })
 
     return {
-      rgb: res.map((item) => `rgb(${item.join(',')})`),
-      hex: res.map((item) => '#' + ImageColorUtils.rgb2hex(item)),
+      rgb: res.map((item) => `rgba(${item.join(',')})`),
+      hex: res.map((item) => rgb2hex(item)),
     }
   }
 }

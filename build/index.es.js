@@ -1,6 +1,6 @@
 
 (function(l, r) { if (!l || l.getElementById('livereloadscript')) return; r = l.createElement('script'); r.async = 1; r.src = '//' + (self.location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1'; r.id = 'livereloadscript'; l.getElementsByTagName('head')[0].appendChild(r) })(self.document);
-const majorityElement = function (nums) {
+function majorityElement(nums) {
     let majority_element = null;
     let count = 0;
     for (const num of nums) {
@@ -15,7 +15,36 @@ const majorityElement = function (nums) {
         }
     }
     return majority_element;
-};
+}
+function rgb2hex(rgb) {
+    const [R, G, B, A] = rgb;
+    let value = '#';
+    const newR = R.toString(16);
+    const newG = G.toString(16);
+    const newB = B.toString(16);
+    value += newR.length > 1 ? newR : `0${newR}`;
+    value += newG.length > 1 ? newG : `0${newG}`;
+    value += newB.length > 1 ? newB : `0${newB}`;
+    if (typeof A !== 'undefined' && rgb.length > 3) {
+        const newA = Math.round(A * 255).toString(16);
+        value += newA.length > 1 ? newA : `0${newA}`;
+    }
+    return value;
+}
+function rgb2lab(rgb) {
+    let r = rgb[0] / 255, g = rgb[1] / 255, b = rgb[2] / 255, x, y, z;
+    r = r > 0.04045 ? Math.pow((r + 0.055) / 1.055, 2.4) : r / 12.92;
+    g = g > 0.04045 ? Math.pow((g + 0.055) / 1.055, 2.4) : g / 12.92;
+    b = b > 0.04045 ? Math.pow((b + 0.055) / 1.055, 2.4) : b / 12.92;
+    x = (r * 0.4124 + g * 0.3576 + b * 0.1805) / 0.95047;
+    y = (r * 0.2126 + g * 0.7152 + b * 0.0722) / 1.0;
+    z = (r * 0.0193 + g * 0.1192 + b * 0.9505) / 1.08883;
+    x = x > 0.008856 ? Math.pow(x, 1 / 3) : 7.787 * x + 16 / 116;
+    y = y > 0.008856 ? Math.pow(y, 1 / 3) : 7.787 * y + 16 / 116;
+    z = z > 0.008856 ? Math.pow(z, 1 / 3) : 7.787 * z + 16 / 116;
+    return [116 * y - 16, 500 * (x - y), 200 * (y - z)];
+}
+
 class ImageColorUtils {
     constructor(params) {
         const { origin, mockMovePx = 30, boundaryValue = 10, ParticleSize = 4, width, height, onload, } = params || {};
@@ -81,12 +110,10 @@ class ImageColorUtils {
             throw new Error(e);
         }
     }
-    pickColor(x, y, type = 'rgb') {
-        return type === 'rgb'
-            ? ImageColorUtils.getRGB(this.imageData.data, x, y, this.canvas.width)
-            : ImageColorUtils.getHSL(this.imageData.data, x, y, this.canvas.width);
+    pickColor(x, y) {
+        return ImageColorUtils.getRGB(this.imageData.data, x, y, this.canvas.width);
     }
-    pickLineColor({ leftTopPosition, rightBottomPosition, scopes, valueType = 'rgb', }) {
+    pickLineColor({ leftTopPosition, rightBottomPosition, scopes, }) {
         const data = this.imageData.data;
         const media = {};
         const lineArrayCollection = {
@@ -107,7 +134,7 @@ class ImageColorUtils {
                 const [r, g, b] = ImageColorUtils.getRGB(data, x, y, this.canvas.width);
                 rgbArray.push([r, g, b]);
             }
-            media[key] = ImageColorUtils.getMedian(rgbArray, valueType);
+            media[key] = ImageColorUtils.getMedian(rgbArray);
         }
         return media;
     }
@@ -126,11 +153,13 @@ class ImageColorUtils {
                 (2 + (255 - rmean) / 256) * Math.pow(B, 2));
         }
         else if (type === 'lab') {
-            const labOldVal = ImageColorUtils.rgb2lab(oldVal);
-            const labnewVal = ImageColorUtils.rgb2lab(newVal);
+            const labOldVal = rgb2lab(oldVal);
+            const labnewVal = rgb2lab(newVal);
             const [L_1, A_1, B_1] = labOldVal;
             const [L_2, A_2, B_2] = labnewVal;
-            distance = Math.abs(((L_1 - L_2) * 2 + (A_1 - A_2) * 2 + (B_1 - B_2) * 2) / 2);
+            distance = Math.sqrt(Math.abs(Math.pow(L_1 - L_2, 2) +
+                Math.pow(A_1 - A_2, 2) +
+                Math.pow(B_1 - B_2, 2)));
         }
         if (distance >= val) {
             return true;
@@ -140,23 +169,22 @@ class ImageColorUtils {
     static compare(oldVal, newVal, boundaryValue, type) {
         return !ImageColorUtils.isAdjust(oldVal, newVal, boundaryValue || ImageColorUtils.boundaryValue, type);
     }
-    static getAverage(data, valueType) {
+    static getAverage(data) {
         const total = data.reduce((x, y) => [x[0] + y[0], x[1] + y[1], x[2] + y[2]]);
-        return valueType === 'rgb'
-            ? [
-                Math.round(total[0] / data.length),
-                Math.round(total[1] / data.length),
-                Math.round(total[2] / data.length),
-            ]
-            : ImageColorUtils.RGB2HSL(Math.round(total[0] / data.length), Math.round(total[1] / data.length), Math.round(total[2] / data.length));
+        return [
+            Math.round(total[0] / data.length),
+            Math.round(total[1] / data.length),
+            Math.round(total[2] / data.length),
+        ];
     }
     static getMost(data) {
         const r = majorityElement(data.map((item) => item[0]));
         const g = majorityElement(data.map((item) => item[1]));
         const b = majorityElement(data.map((item) => item[2]));
-        return [r, g, b];
+        const a = majorityElement(data.map((item) => item[3]));
+        return [r, g, b, a];
     }
-    static getMedian(data, valueType) {
+    static getMedian(data) {
         const total0 = data.map((item) => item[0]).sort((x, y) => (x > y ? 1 : -1));
         const total1 = data.map((item) => item[1]).sort((x, y) => (x > y ? 1 : -1));
         const total2 = data.map((item) => item[2]).sort((x, y) => (x > y ? 1 : -1));
@@ -165,21 +193,12 @@ class ImageColorUtils {
             const r = (total0[length / 2] + total0[length / 2 - 1]) / 2;
             const g = (total1[length / 2] + total1[length / 2 - 1]) / 2;
             const b = (total2[length / 2] + total2[length / 2 - 1]) / 2;
-            return valueType === 'rgb'
-                ? [r, g, b]
-                : ImageColorUtils.RGB2HSL(r, g, b);
+            return [r, g, b];
         }
         const r = total0[(length + 1) / 2];
         const g = total1[(length + 1) / 2];
         const b = total2[(length + 1) / 2];
-        return valueType === 'rgb'
-            ? [r, g, b]
-            : ImageColorUtils.RGB2HSL(r, g, b);
-    }
-    static getHSL(data, x, y, width) {
-        const index = (width * (y - 1) + x - 1) * 4;
-        const [r, g, b] = [data[index], data[index + 1], data[index + 2]];
-        return ImageColorUtils.RGB2HSL(r, g, b);
+        return [r, g, b];
     }
     static getRGB(data, x, y, width) {
         const index = (width * (y - 1) + x - 1) * 4;
@@ -189,7 +208,7 @@ class ImageColorUtils {
             data[index + 2],
             data[index + 3],
         ];
-        return [r, g, b, a];
+        return [r, g, b, Math.round(a / 255)];
     }
     getArrayFromTopLine(leftTopPosition, rightBottomPosition) {
         const result = [];
@@ -328,92 +347,35 @@ class ImageColorUtils {
             height: adjustHeight,
         };
     }
-    static RGB2HSL(r, g, b) {
-        r /= 255;
-        g /= 255;
-        b /= 255;
-        const max = Math.max(r, g, b);
-        const min = Math.min(r, g, b);
-        let h;
-        let s;
-        const l = (max + min) / 2;
-        if (max === min) {
-            h = 0;
-            s = 0;
-        }
-        else {
-            const d = max - min;
-            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-            switch (max) {
-                case r:
-                    h = (g - b) / d + (g < b ? 6 : 0);
-                    break;
-                case g:
-                    h = (b - r) / d + 2;
-                    break;
-                case b:
-                    h = (r - g) / d + 4;
-                    break;
-            }
-            h /= 6;
-        }
-        return [Math.floor(h * 100), Math.round(s * 100), Math.round(l * 100)];
-    }
-    static hex2rgb(hex) {
-        return [
-            parseInt('0x' + hex.slice(1, 3)),
-            parseInt('0x' + hex.slice(3, 5)),
-            parseInt('0x' + hex.slice(5, 7)),
-        ];
-    }
-    static rgb2hex(rgb) {
-        const r = rgb[0];
-        const g = rgb[1];
-        const b = rgb[2];
-        return ((r << 16) | (g << 8) | b).toString(16);
-    }
-    static rgb2lab(rgb) {
-        let r = rgb[0] / 255, g = rgb[1] / 255, b = rgb[2] / 255, x, y, z;
-        r = r > 0.04045 ? Math.pow((r + 0.055) / 1.055, 2.4) : r / 12.92;
-        g = g > 0.04045 ? Math.pow((g + 0.055) / 1.055, 2.4) : g / 12.92;
-        b = b > 0.04045 ? Math.pow((b + 0.055) / 1.055, 2.4) : b / 12.92;
-        x = (r * 0.4124 + g * 0.3576 + b * 0.1805) / 0.95047;
-        y = (r * 0.2126 + g * 0.7152 + b * 0.0722) / 1.0;
-        z = (r * 0.0193 + g * 0.1192 + b * 0.9505) / 1.08883;
-        x = x > 0.008856 ? Math.pow(x, 1 / 3) : 7.787 * x + 16 / 116;
-        y = y > 0.008856 ? Math.pow(y, 1 / 3) : 7.787 * y + 16 / 116;
-        z = z > 0.008856 ? Math.pow(z, 1 / 3) : 7.787 * z + 16 / 116;
-        return [116 * y - 16, 500 * (x - y), 200 * (y - z)];
-    }
     pickColors() {
         const similarColorsMap = {};
         const res = [];
-        const boundaryValue = 7;
+        const boundaryValue = 25;
         let lastColor;
         for (let x = 1; x < this.canvas.width; x += ImageColorUtils.ParticleSize) {
             for (let y = 1; y < this.canvas.height; y += ImageColorUtils.ParticleSize) {
                 const similarValues = Object.values(similarColorsMap);
-                const rgb = ImageColorUtils.getRGB(this.imageData.data, x, y, this.canvas.width);
-                lastColor = rgb;
-                if (rgb[3] === 0) {
+                const rgba = ImageColorUtils.getRGB(this.imageData.data, x, y, this.canvas.width);
+                lastColor = rgba;
+                if (rgba[3] === 0) {
                     continue;
                 }
                 else if (!similarValues.length) {
-                    similarColorsMap[similarValues.length] = [rgb];
+                    similarColorsMap[similarValues.length] = [rgba];
                 }
                 else if (similarValues.length &&
                     lastColor &&
-                    ImageColorUtils.compare(rgb, lastColor, ImageColorUtils.boundaryValue)) {
+                    ImageColorUtils.compare(rgba, lastColor, ImageColorUtils.boundaryValue)) {
                     let insert = false;
                     for (const similarValue of similarValues) {
-                        if (ImageColorUtils.compare(rgb, similarValue[0], boundaryValue, 'lab') ||
-                            ImageColorUtils.compare(rgb, similarValue[similarValue.length - 1], boundaryValue, 'lab')) {
-                            similarValue.push(rgb);
+                        if (ImageColorUtils.compare(rgba, similarValue[0], boundaryValue, 'lab') ||
+                            ImageColorUtils.compare(rgba, similarValue[similarValue.length - 1], boundaryValue, 'lab')) {
+                            similarValue.push(rgba);
                             insert = true;
                         }
                     }
                     if (!insert) {
-                        similarColorsMap[similarValues.length] = [rgb];
+                        similarColorsMap[similarValues.length] = [rgba];
                     }
                 }
             }
@@ -421,15 +383,14 @@ class ImageColorUtils {
         const values = Object.values(similarColorsMap);
         values
             .sort((x, y) => (x.length < y.length ? 1 : -1))
-            .filter((item) => item.length > 100)
             .forEach((item) => {
             if (!res.some((value) => ImageColorUtils.compare(value, ImageColorUtils.getMost(item), boundaryValue, 'lab'))) {
                 res.push(ImageColorUtils.getMost(item));
             }
         });
         return {
-            rgb: res.map((item) => `rgb(${item.join(',')})`),
-            hex: res.map((item) => '#' + ImageColorUtils.rgb2hex(item)),
+            rgb: res.map((item) => `rgba(${item.join(',')})`),
+            hex: res.map((item) => rgb2hex(item)),
         };
     }
 }

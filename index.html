@@ -46,7 +46,7 @@
       flex-wrap: wrap;
     }
     .color{
-      width: 140px;
+      width: 160px;
       height: 50px;
       color: #ccc;
       line-height: 120px;    
@@ -305,7 +305,7 @@
         })
         
         this.compareBtn.addEventListener('click', () => {
-          const result = ImageColorUtils.compare(blockColor1, blockColor2, this.boundaryValue, 'rgb')
+          const result = ImageColorUtils.compare(blockColor1, blockColor2, this.boundaryValue, 'lab')
           this.compareBtn.innerHTML = `（结果：${result ? '相似': '不相似'}）点击继续对比`
         })
 
@@ -322,7 +322,7 @@
             height: this.canvas.height,
           }).pickColor(x, y)
 
-          const color = `rgb(${pickColor[0]},${pickColor[1]},${pickColor[2]})`
+          const color = `rgba(${pickColor.join(',')})`
 
           if(action === 'pickColor1'){
             this.colorBlock1.style.backgroundColor = color
