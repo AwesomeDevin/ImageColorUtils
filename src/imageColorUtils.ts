@@ -16,6 +16,8 @@ interface ICommon {
   boundaryValue?: number
   ParticleSize?: number
   onload?: () => void
+  type?: 'rgb' | 'lab'
+  direction?: 'external' | 'internal'
 }
 
 interface IImageBitmap {
@@ -67,13 +69,15 @@ export class ImageColorUtils {
   // private origin: ImageBitmap | HTMLImageElement
   // private lineArray: LineArray
 
-  private static mockMovePx: number // 移动的像素
-  private static boundaryValue: number // 边界值
-  private static ParticleSize: number // pickupParticle
+  public mockMovePx: number // 移动的像素
+  public boundaryValue: number // 边界值
+  public ParticleSize: number // pickupParticle
   public canvas: OffscreenCanvas
   public ctx: OffscreenRenderingContext
   public imageData: ImageData
   public onload: () => void
+  public type: 'rgb' | 'lab'
+  public direction: 'external' | 'internal'
 
   // 获取四条边的数据
   constructor(params: AdjustConstructor) {
@@ -81,9 +85,11 @@ export class ImageColorUtils {
       origin,
       mockMovePx = 30,
       boundaryValue = 10,
-      ParticleSize = 10,
+      ParticleSize = 8,
+      type = 'rgb',
       width,
       height,
+      direction = 'external',
       onload,
     } = params || {}
     if (!origin) {
@@ -98,9 +104,11 @@ export class ImageColorUtils {
     }
     this.onload = onload
 
-    ImageColorUtils.ParticleSize = ParticleSize
-    ImageColorUtils.mockMovePx = mockMovePx
-    ImageColorUtils.boundaryValue = boundaryValue
+    this.ParticleSize = ParticleSize
+    this.mockMovePx = mockMovePx
+    this.boundaryValue = boundaryValue
+    this.type = type
+    this.direction = direction
     this.init(origin, width, height)
       .catch((error) => {
         console.error(error)
@@ -244,15 +252,10 @@ export class ImageColorUtils {
   public static compare(
     oldVal: number[],
     newVal: number[],
-    boundaryValue?: number,
+    boundaryValue = 10,
     type?: 'lab' | 'rgb'
   ): boolean {
-    return !ImageColorUtils.isAdjust(
-      oldVal,
-      newVal,
-      boundaryValue || ImageColorUtils.boundaryValue,
-      type
-    )
+    return !ImageColorUtils.isAdjust(oldVal, newVal, boundaryValue, type)
   }
 
   // 求平均值
@@ -383,39 +386,45 @@ export class ImageColorUtils {
     leftTopPosition,
     rightBottomPosition,
   }: MockMoveParams): number[] {
-    const mockMovePx = ImageColorUtils.mockMovePx
+    const mockMovePx = this.mockMovePx
     let leftTopx = leftTopPosition[0]
     let leftTopy = leftTopPosition[1]
 
-    // 假设左上角x轴向 +mockMovePx/2 ~ -mockMovePx/2 内移动
+    // 假设左上角x轴向 mockMovePx 内移动
     for (let count = 1; count <= mockMovePx; count++) {
       const key = 'left'
-      const movePx = -count // +mockMovePx/2-1 ~ -mockMovePx/2 内移动
+      const movePx = this.direction === 'external' ? -count : count // +mockMovePx/2-1 ~ -mockMovePx/2 内移动
       const mockLeftTopx = leftTopx + movePx
-      // const adjust = new ImageColorUtils({origin: this.origin , mockMovePx ,boundaryValue, width: ImageColorUtils.width, height: ImageColorUtils.height})
       const mockHslMedia = this.pickLineColor({
         leftTopPosition: [mockLeftTopx, leftTopy],
         rightBottomPosition,
         scopes: [key],
       })[key]
+
       if (
-        ImageColorUtils.isAdjust(
+        (ImageColorUtils.isAdjust(
           originColorMedia[key],
           mockHslMedia,
-          ImageColorUtils.boundaryValue
-        )
+          this.boundaryValue,
+          this.type
+        ) ||
+          mockLeftTopx <= 0) &&
+        this.direction === 'external'
       ) {
         leftTopx = mockLeftTopx
         break
+      } else if (this.direction === 'internal') {
+        console.log('>>>')
       }
     }
 
-    // 假设左上角y轴向 +mockMovePx/2 ~ -mockMovePx/2 内移动
+    // 假设左上角y轴向 mockMovePx 内移动
     for (let count = 1; count <= mockMovePx; count++) {
       const key = 'top'
-      const movePx = -count // +mockMovePx/2-1 ~ -mockMovePx/2 内移动
+      const movePx = this.direction === 'external' ? -count : count // +mockMovePx/2-1 ~ -mockMovePx/2 内移动
+      console.log('movePx', movePx)
+
       const mockLeftTopy = leftTopy + movePx
-      // const adjust = new ImageColorUtils({origin: this.origin, mockMovePx, boundaryValue,  width: ImageColorUtils.width, height: ImageColorUtils.height })
       const mockHslMedia = this.pickLineColor({
         leftTopPosition: [leftTopx, mockLeftTopy],
         rightBottomPosition,
@@ -425,8 +434,10 @@ export class ImageColorUtils {
         ImageColorUtils.isAdjust(
           originColorMedia[key],
           mockHslMedia,
-          ImageColorUtils.boundaryValue
-        )
+          this.boundaryValue,
+          this.type
+        ) ||
+        (mockLeftTopy <= 0 && this.direction === 'external')
       ) {
         leftTopy = mockLeftTopy
         break
@@ -441,14 +452,14 @@ export class ImageColorUtils {
     leftTopPosition,
     rightBottomPosition,
   }: MockMoveParams): number[] {
-    const mockMovePx = ImageColorUtils.mockMovePx
+    const mockMovePx = this.mockMovePx
     let rightBottomx = rightBottomPosition[0]
     let rightBottomy = rightBottomPosition[1]
 
-    // 假设右下角x轴向 +mockMovePx/2 ~ -mockMovePx/2 内移动
+    // 假设右下角x轴向 mockMovePx 内移动
     for (let count = 1; count <= mockMovePx; count++) {
       const key = 'right'
-      const movePx = count // +mockMovePx/2-1 ~ -mockMovePx/2 内移动
+      const movePx = this.direction === 'external' ? count : -count // +mockMovePx/2-1 ~ -mockMovePx/2 内移动
       const mockRightBotttonx = rightBottomx + movePx
       // const adjust = new ImageColorUtils({origin: this.origin,  mockMovePx ,boundaryValue,width: ImageColorUtils.width, height: ImageColorUtils.height })
       const mockHslMedia = this.pickLineColor({
@@ -460,18 +471,21 @@ export class ImageColorUtils {
         ImageColorUtils.isAdjust(
           originColorMedia[key],
           mockHslMedia,
-          ImageColorUtils.boundaryValue
-        )
+          this.boundaryValue,
+          this.type
+        ) ||
+        (mockRightBotttonx >= this.canvas.width &&
+          this.direction === 'external')
       ) {
         rightBottomx = mockRightBotttonx
         break
       }
     }
 
-    // 假设右下角y轴向 +mockMovePx/2 ~ -mockMovePx/2 内移动
+    // 假设右下角y轴向 mockMovePx 内移动
     for (let count = 1; count <= mockMovePx; count++) {
       const key = 'bottom'
-      const movePx = count // +mockMovePx/2-1 ~ -mockMovePx/2 内移动
+      const movePx = this.direction === 'external' ? count : -count // +mockMovePx/2-1 ~ -mockMovePx/2 内移动
       const mockRightBottomy = rightBottomy + movePx
       // const adjust = new ImageColorUtils({origin: this.origin, mockMovePx,boundaryValue, width: ImageColorUtils.width, height: ImageColorUtils.height })
       const mockHslMedia = this.pickLineColor({
@@ -479,12 +493,16 @@ export class ImageColorUtils {
         rightBottomPosition: [rightBottomx, mockRightBottomy],
         scopes: [key],
       })[key]
+
       if (
         ImageColorUtils.isAdjust(
           originColorMedia[key],
           mockHslMedia,
-          ImageColorUtils.boundaryValue
-        )
+          this.boundaryValue,
+          this.type
+        ) ||
+        (mockRightBottomy >= this.canvas.height &&
+          this.direction === 'external')
       ) {
         rightBottomy = mockRightBottomy
         break
@@ -498,7 +516,7 @@ export class ImageColorUtils {
     leftTopPosition: number[],
     rightBottomPosition: number[]
   ): { x: number; y: number; width: number; height: number } {
-    // const params = Object.assign({origin: this.origin, width: ImageColorUtils.width, height: ImageColorUtils.height}, ImageColorUtils.mockMovePx && {mockMovePx: ImageColorUtils.mockMovePx}, ImageColorUtils.boundaryValue && {boundaryValue: ImageColorUtils.boundaryValue} )
+    // const params = Object.assign({origin: this.origin, width: ImageColorUtils.width, height: ImageColorUtils.height}, this.mockMovePx && {mockMovePx: this.mockMovePx}, this.boundaryValue && {boundaryValue: this.boundaryValue} )
     // const adjust = new ImageColorUtils(params)
     if (!leftTopPosition.length || !rightBottomPosition.length) {
       throw new Error('Position is invalid！')
@@ -517,6 +535,8 @@ export class ImageColorUtils {
       leftTopPosition,
       rightBottomPosition,
     }) // 修正后右下角坐标
+    console.log(leftTopPosition, adjustLeftTopPosition)
+    console.log(rightBottomPosition, adjustRightBottomPosition)
     const adjustWidth = adjustRightBottomPosition[0] - adjustLeftTopPosition[0] // 修正后width
     const adjustHeight = adjustRightBottomPosition[1] - adjustLeftTopPosition[1] // 修正后height
 
@@ -524,8 +544,8 @@ export class ImageColorUtils {
     const y = adjustLeftTopPosition[1]
 
     return {
-      x,
-      y,
+      x: x,
+      y: y,
       width: adjustWidth,
       height: adjustHeight,
     }
@@ -539,17 +559,13 @@ export class ImageColorUtils {
     const similarColorsMap: { [key: string]: number[][] } = {}
 
     const res: number[][] = []
-    const boundaryValue = 20
+    const boundaryValue = this.boundaryValue + 8
     const type = 'lab'
 
     let lastColor
 
-    for (let x = 1; x < this.canvas.width; x += ImageColorUtils.ParticleSize) {
-      for (
-        let y = 1;
-        y < this.canvas.height;
-        y += ImageColorUtils.ParticleSize
-      ) {
+    for (let x = 1; x < this.canvas.width; x += this.ParticleSize) {
+      for (let y = 1; y < this.canvas.height; y += this.ParticleSize) {
         const similarValues = Object.values(similarColorsMap)
 
         const rgba = ImageColorUtils.getRGB(
@@ -566,12 +582,7 @@ export class ImageColorUtils {
         } else if (
           similarValues.length &&
           lastColor &&
-          ImageColorUtils.compare(
-            rgba,
-            lastColor,
-            ImageColorUtils.boundaryValue,
-            type
-          )
+          ImageColorUtils.compare(rgba, lastColor, boundaryValue, type)
         ) {
           // 是否已经被插入
           let insert = false
@@ -620,19 +631,33 @@ export class ImageColorUtils {
           )
       )
       .forEach((item) => {
-        if (
-          !res.some((value) =>
-            ImageColorUtils.compare(
-              value,
-              ImageColorUtils.getMedian(item),
-              boundaryValue,
-              type
+        if (ImageColorUtils.getMedian(item).join(',') === '235,213.5,190,1') {
+          console.log(
+            !res.some((value) =>
+              ImageColorUtils.compare(
+                value,
+                ImageColorUtils.getMedian(item),
+                boundaryValue + 0,
+                type
+              )
             )
           )
-        ) {
-          res.push(ImageColorUtils.getMedian(item))
         }
+        // if (
+        //   !res.some((value) =>
+        //     ImageColorUtils.compare(
+        //       value,
+        //       ImageColorUtils.getMedian(item),
+        //       boundaryValue + 0,
+        //       type
+        //     )
+        //   )
+        // ) {
+        res.push(ImageColorUtils.getMedian(item))
+        // }
       })
+
+    console.log(values)
 
     return {
       rgb: res.map((item) => `rgba(${item.join(',')})`),

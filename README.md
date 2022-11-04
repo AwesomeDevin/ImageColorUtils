@@ -5,7 +5,8 @@
 
 ### [demo](http://175.24.232.69:8080/ImageColorUtils/index.html)
 ### [codesandbox](https://codesandbox.io/s/image-color-utils-ghrvb)
-![](https://raw.githubusercontent.com/o2team/image-color-utils/main/static/demo4.gif)
+![](https://raw.githubusercontent.com/o2team/image-color-utils/main/static/demo4.gif)  
+![](https://img12.360buyimg.com/img/jfs/t1/19601/32/19585/1217311/6363b592E6e1c903e/81fbcf98976a1d0d.gif)  
 
 
 ## Install

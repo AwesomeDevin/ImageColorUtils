@@ -102,7 +102,7 @@ function rgb2lab(rgb) {
 
 class ImageColorUtils {
     constructor(params) {
-        const { origin, mockMovePx = 30, boundaryValue = 10, ParticleSize = 10, width, height, onload, } = params || {};
+        const { origin, mockMovePx = 30, boundaryValue = 10, ParticleSize = 8, type = 'rgb', width, height, direction = 'external', onload, } = params || {};
         if (!origin) {
             throw new Error('Origin is necessary');
         }
@@ -111,9 +111,11 @@ class ImageColorUtils {
             throw new Error('Because of origin is not a http link, width and height is necessary ');
         }
         this.onload = onload;
-        ImageColorUtils.ParticleSize = ParticleSize;
-        ImageColorUtils.mockMovePx = mockMovePx;
-        ImageColorUtils.boundaryValue = boundaryValue;
+        this.ParticleSize = ParticleSize;
+        this.mockMovePx = mockMovePx;
+        this.boundaryValue = boundaryValue;
+        this.type = type;
+        this.direction = direction;
         this.init(origin, width, height)
             .catch((error) => {
             console.error(error);
@@ -221,8 +223,8 @@ class ImageColorUtils {
         }
         return false;
     }
-    static compare(oldVal, newVal, boundaryValue, type) {
-        return !ImageColorUtils.isAdjust(oldVal, newVal, boundaryValue || ImageColorUtils.boundaryValue, type);
+    static compare(oldVal, newVal, boundaryValue = 10, type) {
+        return !ImageColorUtils.isAdjust(oldVal, newVal, boundaryValue, type);
     }
     static getAverage(data) {
         const total = data.reduce((x, y) => [x[0] + y[0], x[1] + y[1], x[2] + y[2]]);
@@ -309,33 +311,40 @@ class ImageColorUtils {
         return result;
     }
     leftTopMockMove({ originColorMedia, leftTopPosition, rightBottomPosition, }) {
-        const mockMovePx = ImageColorUtils.mockMovePx;
+        const mockMovePx = this.mockMovePx;
         let leftTopx = leftTopPosition[0];
         let leftTopy = leftTopPosition[1];
         for (let count = 1; count <= mockMovePx; count++) {
             const key = 'left';
-            const movePx = -count;
+            const movePx = this.direction === 'external' ? -count : count;
             const mockLeftTopx = leftTopx + movePx;
             const mockHslMedia = this.pickLineColor({
                 leftTopPosition: [mockLeftTopx, leftTopy],
                 rightBottomPosition,
                 scopes: [key],
             })[key];
-            if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, ImageColorUtils.boundaryValue)) {
+            if ((ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, this.boundaryValue, this.type) ||
+                mockLeftTopx <= 0) &&
+                this.direction === 'external') {
                 leftTopx = mockLeftTopx;
                 break;
+            }
+            else if (this.direction === 'internal') {
+                console.log('>>>');
             }
         }
         for (let count = 1; count <= mockMovePx; count++) {
             const key = 'top';
-            const movePx = -count;
+            const movePx = this.direction === 'external' ? -count : count;
+            console.log('movePx', movePx);
             const mockLeftTopy = leftTopy + movePx;
             const mockHslMedia = this.pickLineColor({
                 leftTopPosition: [leftTopx, mockLeftTopy],
                 rightBottomPosition,
                 scopes: [key],
             })[key];
-            if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, ImageColorUtils.boundaryValue)) {
+            if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, this.boundaryValue, this.type) ||
+                (mockLeftTopy <= 0 && this.direction === 'external')) {
                 leftTopy = mockLeftTopy;
                 break;
             }
@@ -343,33 +352,37 @@ class ImageColorUtils {
         return [leftTopx, leftTopy];
     }
     rightBottomMockMove({ originColorMedia, leftTopPosition, rightBottomPosition, }) {
-        const mockMovePx = ImageColorUtils.mockMovePx;
+        const mockMovePx = this.mockMovePx;
         let rightBottomx = rightBottomPosition[0];
         let rightBottomy = rightBottomPosition[1];
         for (let count = 1; count <= mockMovePx; count++) {
             const key = 'right';
-            const movePx = count;
+            const movePx = this.direction === 'external' ? count : -count;
             const mockRightBotttonx = rightBottomx + movePx;
             const mockHslMedia = this.pickLineColor({
                 leftTopPosition,
                 rightBottomPosition: [mockRightBotttonx, rightBottomy],
                 scopes: [key],
             })[key];
-            if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, ImageColorUtils.boundaryValue)) {
+            if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, this.boundaryValue, this.type) ||
+                (mockRightBotttonx >= this.canvas.width &&
+                    this.direction === 'external')) {
                 rightBottomx = mockRightBotttonx;
                 break;
             }
         }
         for (let count = 1; count <= mockMovePx; count++) {
             const key = 'bottom';
-            const movePx = count;
+            const movePx = this.direction === 'external' ? count : -count;
             const mockRightBottomy = rightBottomy + movePx;
             const mockHslMedia = this.pickLineColor({
                 leftTopPosition,
                 rightBottomPosition: [rightBottomx, mockRightBottomy],
                 scopes: [key],
             })[key];
-            if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, ImageColorUtils.boundaryValue)) {
+            if (ImageColorUtils.isAdjust(originColorMedia[key], mockHslMedia, this.boundaryValue, this.type) ||
+                (mockRightBottomy >= this.canvas.height &&
+                    this.direction === 'external')) {
                 rightBottomy = mockRightBottomy;
                 break;
             }
@@ -394,13 +407,15 @@ class ImageColorUtils {
             leftTopPosition,
             rightBottomPosition,
         });
+        console.log(leftTopPosition, adjustLeftTopPosition);
+        console.log(rightBottomPosition, adjustRightBottomPosition);
         const adjustWidth = adjustRightBottomPosition[0] - adjustLeftTopPosition[0];
         const adjustHeight = adjustRightBottomPosition[1] - adjustLeftTopPosition[1];
         const x = adjustLeftTopPosition[0];
         const y = adjustLeftTopPosition[1];
         return {
-            x,
-            y,
+            x: x,
+            y: y,
             width: adjustWidth,
             height: adjustHeight,
         };
@@ -408,11 +423,11 @@ class ImageColorUtils {
     pickColors() {
         const similarColorsMap = {};
         const res = [];
-        const boundaryValue = 20;
+        const boundaryValue = this.boundaryValue + 8;
         const type = 'lab';
         let lastColor;
-        for (let x = 1; x < this.canvas.width; x += ImageColorUtils.ParticleSize) {
-            for (let y = 1; y < this.canvas.height; y += ImageColorUtils.ParticleSize) {
+        for (let x = 1; x < this.canvas.width; x += this.ParticleSize) {
+            for (let y = 1; y < this.canvas.height; y += this.ParticleSize) {
                 const similarValues = Object.values(similarColorsMap);
                 const rgba = ImageColorUtils.getRGB(this.imageData.data, x, y, this.canvas.width);
                 lastColor = rgba;
@@ -424,7 +439,7 @@ class ImageColorUtils {
                 }
                 else if (similarValues.length &&
                     lastColor &&
-                    ImageColorUtils.compare(rgba, lastColor, ImageColorUtils.boundaryValue, type)) {
+                    ImageColorUtils.compare(rgba, lastColor, boundaryValue, type)) {
                     let insert = false;
                     for (const similarValue of similarValues) {
                         if (ImageColorUtils.compare(rgba, similarValue[similarValue.length - 1], boundaryValue, type) &&
@@ -448,10 +463,12 @@ class ImageColorUtils {
                 (this.canvas.width * this.canvas.height)) *
                 4))
             .forEach((item) => {
-            if (!res.some((value) => ImageColorUtils.compare(value, ImageColorUtils.getMedian(item), boundaryValue, type))) {
-                res.push(ImageColorUtils.getMedian(item));
+            if (ImageColorUtils.getMedian(item).join(',') === '235,213.5,190,1') {
+                console.log(!res.some((value) => ImageColorUtils.compare(value, ImageColorUtils.getMedian(item), boundaryValue + 0, type)));
             }
+            res.push(ImageColorUtils.getMedian(item));
         });
+        console.log(values);
         return {
             rgb: res.map((item) => `rgba(${item.join(',')})`),
             hex: res.map((item) => rgb2hex(item)),

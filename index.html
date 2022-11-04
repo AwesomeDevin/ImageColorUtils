@@ -13,7 +13,7 @@
       line-height: 25px;
     }
     #canvas {
-      margin-left: 50px;
+      margin: 30px 0 0 50px;
       display: block;
     }
     #color-block1,#color-block2,#color-block3,#color-block4{
@@ -102,7 +102,7 @@
     <h3>参数配置</h3>
     <div class="flex">
       色彩边界阈值（阈值越高，相似条件越低）：
-      <input type='range' id='boundary' name='boundaryValue' value="10"  min="10" max="100" step="2"/>
+      <input type='range' id='boundary' name='boundaryValue' value="10"  min="5" max="100" step="2"/>
       <span id="boundaryText">10</span>
     </div>
     <div class="flex" style="display: none">
@@ -112,14 +112,14 @@
     </div>
     <div class="flex">
       边界扫描距离（由内向外）：
-      <input type='range' id='mockMove' name='mockMovePx' value="30"  min="10" max="200" step="10"/>
+      <input type='range' id='mockMove' name='mockMovePx' value="200"  min="10" max="200" step="10"/>
       <span id="mockMoveText">30px</span>
     </div>
     
   </div>
   <canvas id='canvas' width="375" height="812"> </canvas>
   <script>
-    var action = 'pickColor1'
+    var action = 'adjust'
     var blockColor1 = [255,255,255]
     var blockColor2 = [255,255,255]
     var pickColorsValue = []
@@ -142,13 +142,15 @@
       init(){
         // const imageUrl = 'https://storage.360buyimg.com/dataset-activity-mini/png-jpg-00002-2.jpg'
         // const imageUrl = 'https://img20.360buyimg.com/babel/s1180x940_jfs/t1/147050/6/31926/85670/6357a9afE26ff5c66/3a6823f7820fb72b.jpg'
-        const imageUrl='https://img10.360buyimg.com/img/jfs/t1/86699/27/29562/39551/62bec631E155c7e41/55d63c89279226f0.jpg'
+        // const imageUrl='https://img10.360buyimg.com/img/jfs/t1/86699/27/29562/39551/62bec631E155c7e41/55d63c89279226f0.jpg'
+        // const imageUrl = 'https://img12.360buyimg.com/img/jfs/t1/145637/14/31708/63104/6363bb6fEe9325068/623e218e0216fef1.png'
+        const imageUrl = 'https://storage.360buyimg.com/schemas/cate/737_家用电器/100037079969_GROUP_0.jpg'
         const width = 500
         this.isDrawing = false
         this.rects = []
         this.boundaryValue = 10
         this.boundaryValue2 = 20
-        this.mockMovePx = 30
+        this.mockMovePx = 200
 
         this.colors = document.getElementById('colors')
         this.colorBlock1 = document.getElementById('color-block1')
@@ -228,20 +230,22 @@
 
       // 提取色值
       pickColors(){
+        const self = this
         const colorUtils = new ImageColorUtils({
           origin: this.img,
-          width:this.canvas.width,
-          height: this.canvas.height,
-          onload: ()=>{
-            this.colors.innerHTML=''
-            const res = colorUtils.pickColors()
-            for(const color of res.rgb){
-              const dom = document.createElement('div')
-              dom.className = 'color'
-              dom.style.background = color
-              dom.innerHTML = color
-              this.colors.appendChild(dom)
-            }
+          width:this.img.width,
+          height: this.img.height,
+          boundaryValue: 11,
+          onload: function(){
+            self.colors.innerHTML=''
+            // const res = this.pickColors()
+            // for(const color of res.rgb){
+            //   const dom = document.createElement('div')
+            //   dom.className = 'color'
+            //   dom.style.background = color
+            //   dom.innerHTML = color
+            //   self.colors.appendChild(dom)
+            // }
           }
         })
       },
@@ -255,12 +259,14 @@
         const self = this
 
         function adjust(leftTopPosition, rightBottomPosition) {
-          const imageColorUtils = new ImageColorUtils({ origin: self.img,width: Math.floor(self.canvas.width), height: Math.floor(self.canvas.height),  boundaryValue: self.boundaryValue, mockMovePx: self.mockMovePx })
+          const imageColorUtils = new ImageColorUtils({ origin: self.img,width: Math.floor(self.canvas.width), height: Math.floor(self.canvas.height),  boundaryValue: self.boundaryValue, mockMovePx: self.mockMovePx, 'direction': 'internal'})
           return imageColorUtils.adjust(leftTopPosition, rightBottomPosition)
         }
 
         function end() {
-          self.rects.push(adjust([startX, startY], [endX, endY] ))
+          const res =  adjust([startX, startY], [endX, endY] )
+          console.log(res)
+          self.rects.push(res)
           
           startX = startY = endX = endY = null
           self.isDrawing = false
@@ -305,7 +311,7 @@
         })
         
         this.compareBtn.addEventListener('click', () => {
-          const result = ImageColorUtils.compare(blockColor1, blockColor2, this.boundaryValue, 'lab')
+          const result = ImageColorUtils.compare([143, 148, 151, 1], [230, 213, 206, 1], 22)
           this.compareBtn.innerHTML = `（结果：${result ? '相似': '不相似'}）点击继续对比`
         })
 
