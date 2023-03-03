@@ -1,7 +1,7 @@
 # image-color-utils
 
 ## DESC
-提供`取色`、`色值相似度对比`、`色彩边界值计算`等能力。  
+Provide `pickup color`, `color similarity comparison`, `color boundary value calculation` and other capabilities。  
 
 ### [demo](https://awesomedevin.github.io/ImageColorUtils/)
 ### [codesandbox](https://codesandbox.io/s/image-color-utils-ghrvb)
