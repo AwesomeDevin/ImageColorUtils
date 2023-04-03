@@ -27,7 +27,7 @@ const { ImageColorUtils } = require('image-color-utils')
 - [ImageColorUtils](#-imagecolorutils)
 - [pickColor](#-pickcolor---提取单个色值)
 - [pickColors](#-pickcolors---提取图片色值)
-- [adjust](#-adjust---色彩边界值计算)
+- [adjust](#-adjust---色彩边缘计算)
 - [compare](#-compare---色值相似度对比)
 - [hex2rgb](#-hex2rgb---hex色值转rgb色值)
 - [rgb2hex](#-rgb2hex---rgb色值转hex色值)
@@ -103,7 +103,7 @@ Desc  | Type
 图片色值 | {rgb: string[], hex: string[]  }
 
 
-### \# adjust - 色彩边界值计算
+### \# adjust - 色彩边缘计算
 ```javascript
 import { ImageColorUtils } from 'image-color-utils'
 
