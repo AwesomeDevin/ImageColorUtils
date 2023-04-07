@@ -3,7 +3,7 @@
 ## DESC
 Provide `pickup color`, `color similarity comparison`, `color boundary value calculation` and other capabilities。  
 
-![]('./assets/image-color-utils.gif')
+![](https://github.com/AwesomeDevin/ImageColorUtils/blob/master/assets/image-color-utils.gif?raw=true)
 
 ### [demo](https://awesomedevin.github.io/ImageColorUtils/)
 ### [codesandbox](https://codesandbox.io/s/image-color-utils-ghrvb)
