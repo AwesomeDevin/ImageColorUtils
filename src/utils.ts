@@ -107,37 +107,6 @@ export function rgb2hex(rgb: number[]): string {
   return value
 }
 
-// export function rgb2hsl(rgba: number[]): number[] {
-//   const a = rgba[3]
-//   let [r, g, b] = rgba
-//   ;(r /= 255), (g /= 255), (b /= 255)
-//   const max = Math.max(r, g, b),
-//     min = Math.min(r, g, b)
-//   let h,
-//     s,
-//     l = (max + min) / 2
-
-//   if (max == min) {
-//     h = s = 0 // achromatic
-//   } else {
-//     const d = max - min
-//     s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
-//     switch (max) {
-//       case r:
-//         h = (g - b) / d + (g < b ? 6 : 0)
-//         break
-//       case g:
-//         h = (b - r) / d + 2
-//         break
-//       case b:
-//         h = (r - g) / d + 4
-//         break
-//     }
-//     h /= 6
-//   }
-//   return [Math.floor(h * 100), Math.round(s * 100), Math.round(l * 100), a]
-// }
-
 export function rgb2lab(rgb: number[]): number[] {
   let r = rgb[0] / 255,
     g = rgb[1] / 255,
@@ -158,4 +127,44 @@ export function rgb2lab(rgb: number[]): number[] {
   y = y > 0.008856 ? Math.pow(y, 1 / 3) : 7.787 * y + 16 / 116
   z = z > 0.008856 ? Math.pow(z, 1 / 3) : 7.787 * z + 16 / 116
   return [116 * y - 16, 500 * (x - y), 200 * (y - z)]
+}
+
+
+export function rgb2hsl(rgb: number[]): number[] {
+  let r = rgb[0] / 255,
+    g = rgb[1] / 255,
+    b = rgb[2] / 255,
+    max = Math.max(r, g, b),
+    min = Math.min(r, g, b),
+    h,
+    s,
+    l = (max + min) / 2
+
+  if (max === min) {
+    h = s = 0
+  } else {
+    let d = max - min
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
+    switch (max) {
+      case r:
+        h = (g - b) / d + (g < b ? 6 : 0)
+        break
+      case g:
+        h = (b - r) / d + 2
+        break
+      case b:
+        h = (r - g) / d + 4
+        break
+    }
+    h /= 6
+  }
+  return [h * 360, s * 100, l * 100]
+}
+
+export function isDeepColor(hsl: number[]): boolean {
+   const lightness = hsl[2] / 100;
+   // 设定一个亮度阈值，这里以30%为例  
+   const threshold = 0.5;  
+   // 如果亮度小于或等于阈值，则为深色  
+   return lightness <= threshold;  
 }

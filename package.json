@@ -4,9 +4,10 @@
   "description": "Operate image pixels, such as pickup color, color contrast, etc",
   "main": "./build/index.js",
   "module": "./build/index.es.js",
+  "typings": "./build/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npx rollup -c ",
+    "build": "npx rollup -c",
     "dev": "npx rollup -c -w"
   },
   "author": "AwesomeDevin <awesomedevin.deng@gmail.com>",

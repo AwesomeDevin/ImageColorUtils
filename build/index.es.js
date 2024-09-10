@@ -95,6 +95,35 @@ function rgb2lab(rgb) {
     z = z > 0.008856 ? Math.pow(z, 1 / 3) : 7.787 * z + 16 / 116;
     return [116 * y - 16, 500 * (x - y), 200 * (y - z)];
 }
+function rgb2hsl(rgb) {
+    let r = rgb[0] / 255, g = rgb[1] / 255, b = rgb[2] / 255, max = Math.max(r, g, b), min = Math.min(r, g, b), h, s, l = (max + min) / 2;
+    if (max === min) {
+        h = s = 0;
+    }
+    else {
+        let d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+            case r:
+                h = (g - b) / d + (g < b ? 6 : 0);
+                break;
+            case g:
+                h = (b - r) / d + 2;
+                break;
+            case b:
+                h = (r - g) / d + 4;
+                break;
+        }
+        h /= 6;
+    }
+    return [h * 360, s * 100, l * 100];
+}
+function isDeepColor(hsl) {
+    const lightness = hsl[2] / 100;
+    console.log(lightness);
+    const threshold = 0.5;
+    return lightness <= threshold;
+}
 
 class ImageColorUtils {
     constructor(params) {
@@ -455,4 +484,4 @@ class ImageColorUtils {
     }
 }
 
-export { ImageColorUtils, hex2rgb, majorityElement, rgb2hex, rgb2hue, rgb2lab, rgb2value, rgb2whiteness };
+export { ImageColorUtils, hex2rgb, isDeepColor, majorityElement, rgb2hex, rgb2hsl, rgb2hue, rgb2lab, rgb2value, rgb2whiteness };

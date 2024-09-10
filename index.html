@@ -74,6 +74,10 @@
       <div id="color-block1"></div>
     </label>
     <label class="flex">
+      色值1深浅判断：
+      <button id='deepLightBtn'>开始判断</button>
+    </label>
+    <label class="flex">
       提取色值2： 
       <input type='radio' value='pickColor2' name='action' onchange="changeAction(this.value)"  /> 
       <div id="color-block2"></div>
@@ -135,7 +139,7 @@
 
   </script>
   <script type="module">
-    import { ImageColorUtils } from './build/index.es.js'
+    import { ImageColorUtils, rgb2hsl, isDeepColor } from './build/index.es.js'
 
     var main = {
       // 初始化
@@ -171,6 +175,7 @@
         this.upload = document.getElementById('upload')
         this.canvas = document.getElementById('canvas')
         this.ctx = canvas.getContext('2d')
+        this.deepLightBtn = document.getElementById('deepLightBtn')
         
         this.img = new Image()
         this.img.crossOrigin = 'Anonymous'
@@ -307,6 +312,15 @@
         this.compareBtn.addEventListener('click', () => {
           const result = ImageColorUtils.compare(blockColor1, blockColor2, this.boundaryValue, 'lab')
           this.compareBtn.innerHTML = `（结果：${result ? '相似': '不相似'}）点击继续对比`
+        })
+
+        this.deepLightBtn.addEventListener('click', () => {
+          const rgb = blockColor1.slice(0,3)
+          const result = rgb2hsl(rgb)
+          const isDeep = isDeepColor(result)
+          console.log(isDeep)
+          // const result = ImageColorUtils.compare(blockColor1, blockColor2, this.boundaryValue, 'lab')
+          this.deepLightBtn.innerHTML = `（结果：${isDeep ? '深色': '浅色'}）点击继续判断`
         })
 
         this.canvas.addEventListener('click', (e) => {

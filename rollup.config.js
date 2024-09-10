@@ -1,18 +1,18 @@
-import polyfill from 'rollup-plugin-polyfill'
-import typescript from 'rollup-plugin-typescript2'
-import serve from 'rollup-plugin-serve'
 import commonjs from 'rollup-plugin-commonjs'
 import livereload from 'rollup-plugin-livereload'
+import polyfill from 'rollup-plugin-polyfill'
+import serve from 'rollup-plugin-serve'
+import typescript from 'rollup-plugin-typescript2'
 // import {liveServer} from 'rollup-plugin-live-server';
 
 let defaults = { compilerOptions: { declaration: true } }
-let override = { compilerOptions: { declaration: false } }
 
 const plugins = [
   typescript({
     tsconfigDefaults: defaults,
     tsconfig: 'tsconfig.json',
-    tsconfigOverride: override,
+    // tsconfigOverride: override,
+    outDir: './build',
   }),
   commonjs(),
   livereload(),
