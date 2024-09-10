@@ -139,7 +139,7 @@
 
   </script>
   <script type="module">
-    import { ImageColorUtils, rgb2hsl, isDeepColor } from './build/index.es.js'
+    import { ImageColorUtils, rgb2hsv, isDeepColorByHsv } from './build/index.es.js'
 
     var main = {
       // 初始化
@@ -316,8 +316,8 @@
 
         this.deepLightBtn.addEventListener('click', () => {
           const rgb = blockColor1.slice(0,3)
-          const result = rgb2hsl(rgb)
-          const isDeep = isDeepColor(result)
+          const result = rgb2hsv(rgb)
+          const isDeep = isDeepColorByHsv(result)
           console.log(isDeep)
           // const result = ImageColorUtils.compare(blockColor1, blockColor2, this.boundaryValue, 'lab')
           this.deepLightBtn.innerHTML = `（结果：${isDeep ? '深色': '浅色'}）点击继续判断`

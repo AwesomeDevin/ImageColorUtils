@@ -118,11 +118,43 @@ function rgb2hsl(rgb) {
     }
     return [h * 360, s * 100, l * 100];
 }
-function isDeepColor(hsl) {
+function rgb2hsv(rgb) {
+    let [r, g, b] = rgb;
+    r /= 255;
+    g /= 255;
+    b /= 255;
+    let max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h, s, v = max;
+    let d = max - min;
+    s = max === 0 ? 0 : d / max;
+    if (max === min) {
+        h = 0;
+    }
+    else {
+        switch (max) {
+            case r:
+                h = (g - b) / d + (g < b ? 6 : 0);
+                break;
+            case g:
+                h = (b - r) / d + 2;
+                break;
+            case b:
+                h = (r - g) / d + 4;
+                break;
+        }
+        h /= 6;
+    }
+    return [h * 360, s * 100, v * 100];
+}
+function isDeepColorByHsl(hsl) {
     const lightness = hsl[2] / 100;
-    console.log(lightness);
-    const threshold = 0.5;
-    return lightness <= threshold;
+    return lightness <= 0.6;
+}
+function isDeepColorByHsv(hsv) {
+    const v = hsv[2];
+    const s = hsv[1];
+    console.log(hsv);
+    return v <= 60 || s > 40;
 }
 
 class ImageColorUtils {
@@ -484,4 +516,4 @@ class ImageColorUtils {
     }
 }
 
-export { ImageColorUtils, hex2rgb, isDeepColor, majorityElement, rgb2hex, rgb2hsl, rgb2hue, rgb2lab, rgb2value, rgb2whiteness };
+export { ImageColorUtils, hex2rgb, isDeepColorByHsl, isDeepColorByHsv, majorityElement, rgb2hex, rgb2hsl, rgb2hsv, rgb2hue, rgb2lab, rgb2value, rgb2whiteness };

@@ -6,4 +6,6 @@ export declare function hex2rgb(hex: string): number[];
 export declare function rgb2hex(rgb: number[]): string;
 export declare function rgb2lab(rgb: number[]): number[];
 export declare function rgb2hsl(rgb: number[]): number[];
-export declare function isDeepColor(hsl: number[]): boolean;
+export declare function rgb2hsv(rgb: number[]): number[];
+export declare function isDeepColorByHsl(hsl: number[]): boolean;
+export declare function isDeepColorByHsv(hsv: number[]): boolean;

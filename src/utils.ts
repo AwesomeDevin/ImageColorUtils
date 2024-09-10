@@ -161,10 +161,44 @@ export function rgb2hsl(rgb: number[]): number[] {
   return [h * 360, s * 100, l * 100]
 }
 
-export function isDeepColor(hsl: number[]): boolean {
+export function rgb2hsv(rgb: number[]): number[] {
+  let [r, g, b] = rgb;
+  r /= 255;
+  g /= 255;
+  b /= 255;
+
+  let max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h, s, v = max;
+
+  let d = max - min;
+  s = max === 0 ? 0 : d / max;
+
+  if (max === min) {
+      h = 0; // achromatic
+  } else {
+      switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
+      }
+      h /= 6;
+  }
+
+  return [h * 360, s * 100, v * 100]; // 返回的是HSV值，H的范围是0-360，S和V的范围是0-100
+}
+
+export function isDeepColorByHsl(hsl: number[]): boolean {
    const lightness = hsl[2] / 100;
-   // 设定一个亮度阈值，这里以30%为例  
-   const threshold = 0.5;  
+
    // 如果亮度小于或等于阈值，则为深色  
-   return lightness <= threshold;  
+   return lightness <= 0.6
+}
+
+
+export function isDeepColorByHsv(hsv: number[]): boolean {
+  const v = hsv[2] 
+  const s = hsv[1]
+  console.log(hsv)
+
+  return v <= 60 || s > 40;
 }
