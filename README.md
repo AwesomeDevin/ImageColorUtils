@@ -180,6 +180,40 @@ Desc  | Type
 HEX色值 | string
 
 
+### \# isDeepColorByHsl - 基于 HSL 判断是否深色
+```javascript
+import { isDeepColorByHsl } from 'image-color-utils'
+
+const isDeep = isDeepColorByHsl(hsl)
+```
+##### Arguments
+Name  | Desc  | Type | Default | required
+-------- | -------- | -------- | -------- | -----
+hsl | HSL色值 | number[] | - | true
+
+##### Returns
+Desc  | Type 
+-------- | -------- 
+isDeep | boolean
+
+
+### \# isDeepColorByHsv - 基于 HSV 判断是否深色
+```javascript
+import { isDeepColorByHsv } from 'image-color-utils'
+
+const isDeep = isDeepColorByHsv(hsv)
+```
+##### Arguments
+Name  | Desc  | Type | Default | required
+-------- | -------- | -------- | -------- | -----
+hsv | HSV色值 | number[] | - | true
+
+##### Returns
+Desc  | Type 
+-------- | -------- 
+isDeep | boolean
+
+
 ## Attribute
 ```javascript
 import { ImageColorUtils } from 'image-color-utils'
