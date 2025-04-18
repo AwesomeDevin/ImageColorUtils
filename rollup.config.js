@@ -1,7 +1,6 @@
 import commonjs from 'rollup-plugin-commonjs'
-import livereload from 'rollup-plugin-livereload'
+// import livereload from 'rollup-plugin-livereload'
 import polyfill from 'rollup-plugin-polyfill'
-import serve from 'rollup-plugin-serve'
 import typescript from 'rollup-plugin-typescript2'
 // import {liveServer} from 'rollup-plugin-live-server';
 
@@ -15,11 +14,11 @@ const plugins = [
     outDir: './build',
   }),
   commonjs(),
-  livereload(),
+  // livereload(),
   polyfill(['./index.ts']),
-  serve({
-    open: true,
-  }),
+  // serve({
+  //   open: true,
+  // }),
 ]
 
 export default {
