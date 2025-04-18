@@ -1,6 +1,6 @@
 {
   "name": "image-color-utils",
-  "version": "1.3.2",
+  "version": "1.3.4",
   "description": "Operate image pixels, such as pickup color, color contrast, etc",
   "main": "./build/index.js",
   "module": "./build/index.es.js",
@@ -23,6 +23,25 @@
     "Color similarity"
   ],
   "dependencies": {
+
+  },
+  "repository": "https://github.com/o2team/image-color-utils",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.17.0",
+    "@typescript-eslint/parser": "^4.17.0",
+    "rollup-plugin-livereload": "^2.0.5",
+    "rollup-plugin-live-server": "^1.0.3",
+    "babel-plugin-tester": "^10.1.0",
+    "eslint": "^7.22.0",
+    "rollup": "2.41.3",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-polyfill": "^3.0.0",
+    "rollup-plugin-serve": "^1.1.0",
+    "rollup-plugin-typescript2": "^0.36.0",
+    "tslib": "^2.8.1",
+    "tslint": "^6.1.3",
+    "typescript": "^5.8.3",
+    "promises-aplus-tests": "^2.1.2",
     "@babel/cli": "^7.15.4",
     "@babel/core": "^7.15.5",
     "@babel/generator": "^7.15.4",
@@ -30,25 +49,8 @@
     "@babel/parser": "^7.15.5",
     "@babel/template": "^7.15.4",
     "@babel/traverse": "^7.15.4",
-    "@babel/types": "^7.15.4",
-    "promises-aplus-tests": "^2.1.2",
-    "rollup-plugin-live-server": "^1.0.3",
-    "rollup-plugin-livereload": "^2.0.5"
-  },
-  "repository": "https://github.com/o2team/image-color-utils",
-  "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^4.17.0",
-    "@typescript-eslint/parser": "^4.17.0",
-    "babel-plugin-tester": "^10.1.0",
-    "eslint": "^7.22.0",
-    "rollup": "2.41.3",
-    "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-polyfill": "^3.0.0",
-    "rollup-plugin-serve": "^1.1.0",
-    "rollup-plugin-typescript2": "^0.30.0",
-    "tslib": "2.1.0",
-    "tslint": "^6.1.3",
-    "typescript": "^4.2.3"
+    "@babel/types": "^7.15.4"
+
   },
   "eslintIgnore": [
     ".eslintrc.js"
